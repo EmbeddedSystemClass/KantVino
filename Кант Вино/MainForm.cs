@@ -67,8 +67,10 @@ namespace Кант_Вино
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            DBDataLayer.DBConnect();
             initTabPage();
             _itemsDataRecived.InitDataRecived(ItemCount);
+           
         }
 
         private void itemControl_Click(object sender, EventArgs e)
@@ -111,6 +113,11 @@ namespace Кант_Вино
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DBDataLayer.DBDisconnect();
         }
     }
 }

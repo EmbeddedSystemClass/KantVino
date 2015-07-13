@@ -39,13 +39,20 @@ namespace Кант_Вино
     public static class DBDataLayer
     {
 
-        private static SQLiteConnection _db = null;
+        private static SQLiteConnection _db = new SQLiteConnection("KantVino.db", true);
 
-        static DBDataLayer()
+        public static void DBConnect()
         {
              _db = new SQLiteConnection("KantVino.db", true);
-            // _db.CreateTable<DBItemData>();
+             _db.CreateTable<DBItemData>();
+            
         }
+
+        public static void DBDisconnect()
+        {
+            _db.Dispose();
+        }
+
         //static ~DBDataLayer()
         //{
         //    // do your work here
@@ -64,7 +71,9 @@ namespace Кант_Вино
          public static void AddData(int indexItem, DBItemData data)
          {
              data.Index = indexItem;
-            _db.RunInTransaction(() => _db.InsertOrReplace(data));
+            _db.RunInTransaction(() => _db.Insert(data));
+
+             
          }
 
 

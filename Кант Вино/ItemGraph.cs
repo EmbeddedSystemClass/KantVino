@@ -95,6 +95,7 @@ namespace Кант_Вино
         private void LoadDataFromBase(DateTime from, DateTime to)
         {
             PointPair[][] pp = new PointPair[4][];
+           
 
             DBDataLayer.ReadData(out pp, _itemIndex, _capacity, from, to);
 
