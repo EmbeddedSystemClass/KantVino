@@ -48,7 +48,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComPort.cs" />
     <Compile Include="ComPortLayer.cs" />
+    <Compile Include="ConfigLayer.cs" />
     <Compile Include="DataBaseLayer.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

@@ -15,6 +15,10 @@ namespace KantVinoV2
         public Form1()
         {
             InitializeComponent();
+
+
+            ComPortLayer cpl = new ComPortLayer();
+            
         }
     }
 }
