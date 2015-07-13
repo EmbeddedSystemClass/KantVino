@@ -42,7 +42,7 @@ namespace KantVinoV2 //end 13_07_2015
         {
             if (_isWaitData && _waitTime > 3) // 90 - 120 ms
             {
-                _unitsData[_unitsIndex].errorCode = InputErrors.ERROR_TIMEOUT;
+                _unitsData[_unitsIndex].ErrorCode = InputErrors.ERROR_TIMEOUT;
                 _isWaitData = false;
                 _unitsIndex++;
             }
@@ -131,17 +131,17 @@ namespace KantVinoV2 //end 13_07_2015
                             // Парсим данные
                             double temp;
                             temp = BitConverter.ToInt16(inBuf, rxIndex);
-                            _unitsData[_unitsIndex].term1 = temp / 16;
+                            _unitsData[_unitsIndex].Term1 = temp / 16;
 
                             temp = BitConverter.ToInt16(inBuf, rxIndex + 2);
-                            _unitsData[_unitsIndex].term2 = temp / 16;
+                            _unitsData[_unitsIndex].Term2 = temp / 16;
 
                             temp = BitConverter.ToInt32(inBuf, rxIndex + 4);
-                            _unitsData[_unitsIndex].pressure =
+                            _unitsData[_unitsIndex].Pressure =
                                 temp * ConfigLayer.unitsConfig[_unitsIndex].coeffPressure;
 
                             temp = BitConverter.ToInt32(inBuf, rxIndex + 8);
-                            _unitsData[_unitsIndex].level =
+                            _unitsData[_unitsIndex].Level =
                                 temp * ConfigLayer.unitsConfig[_unitsIndex].coeffLevel;
 
                             rxIndex += 12;
@@ -167,7 +167,7 @@ namespace KantVinoV2 //end 13_07_2015
                 errorCode |= InputErrors.ERROR_COUNT;
             }
 
-            _unitsData[_unitsIndex].errorCode = errorCode;
+            _unitsData[_unitsIndex].ErrorCode = errorCode;
 
             _isWaitData = false;
             _unitsIndex++;
