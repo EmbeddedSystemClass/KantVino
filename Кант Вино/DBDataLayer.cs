@@ -45,6 +45,8 @@ namespace Кант_Вино
         {
              _db = new SQLiteConnection("KantVino.db", true);
              _db.CreateTable<DBItemData>();
+
+            
             
         }
 
