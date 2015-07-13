@@ -1,0 +1,124 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Кант_Вино.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Port" Type="System.String" Scope="User">
+      <Value Profile="(Default)">COM1</Value>
+    </Setting>
+    <Setting Name="BaudRate" Type="System.String" Scope="User">
+      <Value Profile="(Default)">9600</Value>
+    </Setting>
+    <Setting Name="PollingInterval" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="CoefficientsPressure" Type="System.Double[]" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfDouble xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;0&lt;/double&gt;
+&lt;/ArrayOfDouble&gt;</Value>
+    </Setting>
+    <Setting Name="CoefficientsLevel" Type="System.Double[]" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfDouble xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+  &lt;double&gt;1&lt;/double&gt;
+&lt;/ArrayOfDouble&gt;</Value>
+    </Setting>
+    <Setting Name="ItemsEnale" Type="System.Boolean[]" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfBoolean xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+  &lt;boolean&gt;true&lt;/boolean&gt;
+&lt;/ArrayOfBoolean&gt;</Value>
+    </Setting>
+    <Setting Name="ItemsGConfig" Type="SingleGraphConfig[]" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfSingleGraphConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+                        &lt;SingleGraphConfig&gt;
+                            &lt;ymin&gt;0&lt;/ymin&gt;
+                            &lt;ymax&gt;1&lt;/ymax&gt;
+                            &lt;isYAuto&gt;true&lt;/isYAuto&gt;
+                            &lt;curveName&gt;Температура 1 (°C)&lt;/curveName&gt;
+                            &lt;curveColor&gt;-16776961&lt;/curveColor&gt;
+                        &lt;/SingleGraphConfig&gt;
+                        &lt;SingleGraphConfig&gt;
+                            &lt;ymin&gt;0&lt;/ymin&gt;
+                            &lt;ymax&gt;1&lt;/ymax&gt;
+                            &lt;isYAuto&gt;true&lt;/isYAuto&gt;
+                            &lt;curveName&gt;Температура 2 (°C)&lt;/curveName&gt;
+                            &lt;curveColor&gt;-65536&lt;/curveColor&gt;
+                        &lt;/SingleGraphConfig&gt;
+                        &lt;SingleGraphConfig&gt;
+                            &lt;ymin&gt;0&lt;/ymin&gt;
+                            &lt;ymax&gt;1&lt;/ymax&gt;
+                            &lt;isYAuto&gt;true&lt;/isYAuto&gt;
+                            &lt;curveName&gt;Давление (атм)&lt;/curveName&gt;
+                            &lt;curveColor&gt;-16776961&lt;/curveColor&gt;
+                        &lt;/SingleGraphConfig&gt;
+                        &lt;SingleGraphConfig&gt;
+                            &lt;ymin&gt;0&lt;/ymin&gt;
+                            &lt;ymax&gt;1&lt;/ymax&gt;
+                            &lt;isYAuto&gt;true&lt;/isYAuto&gt;
+                            &lt;curveName&gt;Уровень (м)&lt;/curveName&gt;
+                            &lt;curveColor&gt;-16776961&lt;/curveColor&gt;
+                        &lt;/SingleGraphConfig&gt;
+                    &lt;/ArrayOfSingleGraphConfig&gt;</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
