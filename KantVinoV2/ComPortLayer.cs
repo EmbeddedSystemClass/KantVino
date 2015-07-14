@@ -76,7 +76,7 @@ namespace KantVinoV2 //end 13_07_2015
                 return;
             }
 
-            _waitTime++;
+            if(_waitTime < int.MaxValue) _waitTime++;
         }
 
 

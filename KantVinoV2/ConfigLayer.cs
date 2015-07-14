@@ -18,6 +18,7 @@ namespace KantVinoV2
             public double coeffLevel;  
         }
 
+        //Параметры калибровки
         public static UnitConfig[] unitsConfig = new UnitConfig[20]
         {
             new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
@@ -42,7 +43,7 @@ namespace KantVinoV2
             new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0}
         };
 
-
+        //Константные параметры
         public static int unitCount = 20;
         public static int graphPointCount = 8192;
 
@@ -51,8 +52,13 @@ namespace KantVinoV2
         public static string baudRate = "9600";
 
 
-        public class AllConfig
+        public class GraphConfig
         {
+            public static int timeContinueAtPause = 2;
+            public static int timeContinueAtReload = 5;
+            public static int timeLineSize = 100;
+
+
             //Параметры оси Y графика
             public double[] yMin = new double[4];
             public double[] yMax = new double[4];

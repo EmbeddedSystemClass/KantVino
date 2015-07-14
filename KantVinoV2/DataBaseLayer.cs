@@ -26,11 +26,22 @@ namespace KantVinoV2 //end 14_07_2015
             }
         }
 
-        public bool GetDataAtTime(double dateFrom, double dateTo, int unitIndex, out IEnumerable<KeyValuePair<double, double>[]> datas)
+        public bool GetDataAtTime(double timeFrom, double timeTo, int unitIndex,
+            out IEnumerable<KeyValuePair<double, double>[]> datas)
         {
-            datas = from s in _db.Table<UnitData>()
-                where s.Time >= dateFrom && s.Time <= dateTo && s.Index == unitIndex
+            int cnt = ConfigLayer.graphPointCount;
+
+            var temp = from s in _db.Table<UnitData>()
+                where s.Time >= timeFrom && s.Time <= timeTo && s.Index == unitIndex
                 orderby s.Time
+                select s;
+
+            //Если набралось больше, чем надо, надо что-то пропустить
+            int skipV = Math.Max((temp.Count() - 1)/cnt + 1, 1);
+            int i = 0;
+
+            datas = from s in temp
+                where (i++ % skipV) == 0
                 select new KeyValuePair<double, double>[]
                 {
                     new KeyValuePair<double, double>(s.Time, s.Term1),
@@ -43,23 +54,24 @@ namespace KantVinoV2 //end 14_07_2015
 
         public bool GetLastData(int unitIndex, out IEnumerable<KeyValuePair<double, double>[]> datas)
         {
-            int cnt = ConfigLayer.graphPointCount;
+            //Возвращаем чуть меньше, т.к. будут добавлятся свежие данные
+            int cnt = ConfigLayer.graphPointCount - 2;
             int maxCnt = ConfigLayer.unitCount*cnt;
-            
-            datas = from s in
-                (from t in _db.Table<UnitData>()  //Получаем maxCnt последних записей
-                    .OrderByDescending(c => c.Id)
-                    .Take(maxCnt)
-                    where t.Index == unitIndex
-                    select t)
-                    .Take(cnt) 
+
+            //Получаем maxCnt последних записей
+            var temp = from s in _db.Table<UnitData>()
+                .Skip(Math.Max(_db.Table<UnitData>().Count() - maxCnt, 0))
+                where s.Index == unitIndex
                 orderby s.Time
-                select new KeyValuePair<double,double>[]
+                select s;
+
+            datas = from s in temp.Skip(Math.Max(temp.Count() - cnt, 0))
+                select new KeyValuePair<double, double>[]
                 {
-                    new KeyValuePair<double, double>(s.Time,s.Term1), 
-                    new KeyValuePair<double, double>(s.Time,s.Term2), 
-                    new KeyValuePair<double, double>(s.Time,s.Pressure), 
-                    new KeyValuePair<double, double>(s.Time,s.Level)
+                    new KeyValuePair<double, double>(s.Time, s.Term1),
+                    new KeyValuePair<double, double>(s.Time, s.Term2),
+                    new KeyValuePair<double, double>(s.Time, s.Pressure),
+                    new KeyValuePair<double, double>(s.Time, s.Level)
                 };
             return true;
         }
