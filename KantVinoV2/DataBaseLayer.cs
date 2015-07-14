@@ -3,41 +3,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using SQLite;
 
-namespace KantVinoV2
+namespace KantVinoV2 //end 14_07_2015
 {
-    class DataBaseLayer
+    class DataBaseLayer  
     {
-        private static SQLiteConnection _db = null;
+        private SQLiteConnection _db = null;
 
-
-        public bool SaveDataList(List<UnitData> datas)
+        public bool SaveDataList(IEnumerable<UnitData> datas)
         {
-            _db.RunInTransaction(() => _db.InsertAll(datas));
+            try
+            {
+                _db.RunInTransaction(() => _db.InsertAll(datas));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message, "Ошибка БД", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public bool GetDataAtTime(double dateFrom, double dateTo, int unitIndex, out IEnumerable<KeyValuePair<double, double>[]> datas)
+        {
+            datas = from s in _db.Table<UnitData>()
+                where s.Time >= dateFrom && s.Time <= dateTo && s.Index == unitIndex
+                orderby s.Time
+                select new KeyValuePair<double, double>[]
+                {
+                    new KeyValuePair<double, double>(s.Time, s.Term1),
+                    new KeyValuePair<double, double>(s.Time, s.Term2),
+                    new KeyValuePair<double, double>(s.Time, s.Pressure),
+                    new KeyValuePair<double, double>(s.Time, s.Level)
+                };
             return true;
         }
 
-        public bool GetDataAtTime(double dateFrom, double dateTo, int count, int unitIndex, bool isLast = false)
+        public bool GetLastData(int unitIndex, out IEnumerable<KeyValuePair<double, double>[]> datas)
         {
-            var temp = from s in _db.Table<UnitData>()
-                       where s.Time >= dateFrom && s.Time <= dateTo && s.Index == unitIndex
-                       orderby s.Time
-                       select s;
-
-            int skipCount = temp.Count()/count;
-            int i;
-
-
-
-
-
-
-            return true;
-        }
-
-        public bool GetLastData()
-        {
+            int cnt = ConfigLayer.graphPointCount;
+            int maxCnt = ConfigLayer.unitCount*cnt;
+            
+            datas = from s in
+                (from t in _db.Table<UnitData>()  //Получаем maxCnt последних записей
+                    .OrderByDescending(c => c.Id)
+                    .Take(maxCnt)
+                    where t.Index == unitIndex
+                    select t)
+                    .Take(cnt) 
+                orderby s.Time
+                select new KeyValuePair<double,double>[]
+                {
+                    new KeyValuePair<double, double>(s.Time,s.Term1), 
+                    new KeyValuePair<double, double>(s.Time,s.Term2), 
+                    new KeyValuePair<double, double>(s.Time,s.Pressure), 
+                    new KeyValuePair<double, double>(s.Time,s.Level)
+                };
             return true;
         }
 
@@ -45,8 +68,6 @@ namespace KantVinoV2
         {
             return _db.IsInTransaction;
         }
-
-
 
         public void Open()
         {
@@ -56,8 +77,7 @@ namespace KantVinoV2
             }
 
             _db = new SQLiteConnection("KantVino.db", true);
-            if(_db.GetTableInfo("UnitData") == null)
-                _db.CreateTable<UnitData>();
+            _db.CreateTable<UnitData>();
         }
 
         public void Close()

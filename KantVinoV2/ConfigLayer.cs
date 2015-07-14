@@ -44,6 +44,7 @@ namespace KantVinoV2
 
 
         public static int unitCount = 20;
+        public static int graphPointCount = 8192;
 
         //Параметры порта, требуется перезагрузка настроек
         public static string port = "COM1";
