@@ -11,21 +11,48 @@ namespace KantVinoV2 //end 14_07_2015
     class DataBaseLayer  
     {
         private SQLiteConnection _db = null;
+        private List<UnitData>[] _dataCache = new List<UnitData>[2];
+        private int _swapIndex = 0;
+        private Timer _saveCacheTimer = new Timer();
 
-        public bool SaveDataList(IEnumerable<UnitData> datas)
+        private void SaveCacheTimer_Tick(object sender, EventArgs e)
         {
-            try
-            {
-                _db.RunInTransaction(() => _db.InsertAll(datas));
-                return true;
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show(ex.Message, "Ошибка БД", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+            SaveCache();
         }
 
+        public void AddDataToCache(IEnumerable<UnitData> datas)
+        {
+            _dataCache[_swapIndex].AddRange(datas);
+        }
+
+
+        private bool SaveCache()
+        {
+            if (!_dataCache[_swapIndex].Any()) return true;
+            if (_db == null) return false;
+
+            _swapIndex ^= 1; //Свапаем буфер кэша
+
+            for (int i = 0; i < 2; i++) //Делаем 2 попытки записи
+            {
+                try
+                {
+                    _db.RunInTransaction(() => _db.InsertAll(_dataCache[_swapIndex ^ 1]));
+                    _dataCache[_swapIndex ^ 1].Clear(); //Очищаем кэш
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    //MessageBox.Show(ex.Message, "Ошибка БД", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            _dataCache[_swapIndex ^ 1].Clear(); //Очищаем кэш
+            return false;
+        }
+
+
+        //Взять записи из бд за период
         public bool GetDataAtTime(double timeFrom, double timeTo, int unitIndex,
             out IEnumerable<UnitData> datas)
         {
@@ -42,15 +69,16 @@ namespace KantVinoV2 //end 14_07_2015
             return true;
         }
 
+        //Взять последние записи из бд + кеша
         public bool GetLastData(int unitIndex, out IEnumerable<UnitData> datas)
         {
-            //Возвращаем чуть меньше, т.к. будут добавлятся свежие данные
-            int cnt = ConfigLayer.graphPointCount - 2;
-            int maxCnt = ConfigLayer.unitCount*cnt;
+            int cnt = ConfigLayer.graphPointCount;
+            int maxCnt = ConfigLayer.unitCount * cnt - _dataCache[_swapIndex].Count;
 
-            //Получаем maxCnt последних записей
+            //Получаем maxCnt последних записей + данные из кэша
             var temp = from s in _db.Table<UnitData>()
                 .Skip(Math.Max(_db.Table<UnitData>().Count() - maxCnt, 0))
+                .Concat(_dataCache[_swapIndex])
                 where s.Index == unitIndex
                 orderby s.Time
                 select s;
@@ -59,26 +87,35 @@ namespace KantVinoV2 //end 14_07_2015
             return true;
         }
 
-        public bool IsTransaction()
-        {
-            return _db.IsInTransaction;
-        }
-
         public void Open()
         {
             if (_db != null)
             {
+                _saveCacheTimer.Enabled = false;
+                while(_db.IsInTransaction);
                 _db.Dispose();
             }
 
             _db = new SQLiteConnection("KantVino.db", true);
             _db.CreateTable<UnitData>();
+
+            _dataCache[0] = new List<UnitData>();
+            _dataCache[1] = new List<UnitData>();
+            _dataCache[0].Clear();
+            _dataCache[1].Clear();
+
+            _saveCacheTimer.Interval = ConfigLayer.timeSaveCache * 1000;
+            _saveCacheTimer.Enabled = true;
+            _saveCacheTimer.Tick += SaveCacheTimer_Tick;
         }
 
         public void Close()
         {
             if (_db != null)
             {
+                _saveCacheTimer.Enabled = false;
+                SaveCache();
+                while (_db.IsInTransaction) ;
                 _db.Dispose();
             }
         }

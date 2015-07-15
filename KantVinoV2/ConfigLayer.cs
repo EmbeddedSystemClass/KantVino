@@ -47,6 +47,9 @@ namespace KantVinoV2
         public static int unitCount = 20;
         public static int graphPointCount = 8192;
 
+        //Параметры бд
+        public static int timeSaveCache = 10;
+
         //Параметры порта, требуется перезагрузка настроек
         public static string port = "COM1";
         public static string baudRate = "9600";
@@ -56,7 +59,9 @@ namespace KantVinoV2
         {
             public static int timeContinueAtPause = 2;
             public static int timeContinueAtReload = 5;
-            public static int timeLineSize = 100;
+            public static int timeVisibleLine = 100;
+            public static int timeLoadLeftLine = 100;
+            public static int timeLoadRightLine = 900;
 
 
             //Параметры оси Y графика

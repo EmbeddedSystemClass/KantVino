@@ -89,11 +89,11 @@ namespace KantVinoV2 //end 13_07_2015
             _isWaitData = false;
         }
 
-        public void InterviewComplete(bool isPortOK) //Опрос завершен
-        {
-            
-        }
+        //Опрос завершен
+        public delegate void InterviewCompleteEventHandler(bool isPortOK);
+        public event InterviewCompleteEventHandler InterviewComplete;
 
+        //Ошибка порта
         private void ComPort_PortClosed()
         {
             _readDataTimer.Enabled = false;
