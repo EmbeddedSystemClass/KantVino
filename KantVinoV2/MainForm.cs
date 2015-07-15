@@ -29,11 +29,39 @@ namespace KantVinoV2
         private ComPortLayer _comPortLayer = new ComPortLayer();
         private DataBaseLayer _dataBaseLayer = new DataBaseLayer();
 
+        private void InitInterface()
+        {
+            for (int i = 0; i < ConfigLayer.unitCount; i++)
+            {
+                _interfaceLayers[i] = new InterfaceLayer(i);
+                
+                //бд
+                _interfaceLayers[i].LoadDataAtTime += _dataBaseLayer.GetDataAtTime;
+                _interfaceLayers[i].LoadLastData += _dataBaseLayer.GetLastData;
+                
+                //вьюха
+                //_interfaceLayers[i].InitGraph
+                //_interfaceLayers[i].UpdateDataInGraph
+                //_interfaceLayers[i].ReloadDataInGraph     
+           
+                //_interfaceLayers[i].ContinueUpdate();
+                //_interfaceLayers[i].PauseUpdate();
+                //_interfaceLayers[i].UserChangeTime();
+
+
+                //порт
+                //_interfaceLayers[i].UpdateData();
+            }
+
+           
+        }
+
+
         private void MainForm_Load(object sender, EventArgs e)
         {
 
             InitTabPage();
-
+            
 
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -61,7 +89,7 @@ namespace KantVinoV2
                 ************************************************/
                 _itemsControl[i] = new ItemControl(i);
                 _itemsControl[i].Tag = i;
-                _itemsControl[i].ItemClick += itemControl_Click;
+                _itemsControl[i].ItemClick += ItemsControl_Click;
 
                 //по 5 в ряд и 1 отступ
                 int x = (i % 5) * (_itemsControl[i].Size.Width + 1);
@@ -72,9 +100,34 @@ namespace KantVinoV2
             }
         }
 
-        
+        // Переключение вкладок
+        private void ItemsControl_Click(object sender, EventArgs e)
+        {
+            int i = (int)((ItemControl)sender).Tag;
+            mainTabControl.SelectedIndex = i + 1;
+        }
 
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //Random rnd = new Random();
 
@@ -112,11 +165,7 @@ namespace KantVinoV2
         //}
 
 
-        private void itemControl_Click(object sender, EventArgs e)
-        {
-            int i = (int)((ItemControl)sender).Tag;
-            mainTabControl.SelectedIndex = i + 1;
-        }
+        
 
        
     }

@@ -53,7 +53,7 @@ namespace KantVinoV2 //end 14_07_2015
 
 
         //Взять записи из бд за период
-        public bool GetDataAtTime(double timeFrom, double timeTo, int unitIndex,
+        public void GetDataAtTime(double timeFrom, double timeTo, int unitIndex, 
             out IEnumerable<UnitData> datas)
         {
             int cnt = ConfigLayer.graphPointCount;
@@ -66,11 +66,10 @@ namespace KantVinoV2 //end 14_07_2015
             //Если набралось больше, чем надо, надо что-то пропустить
             int nStep = Math.Max((temp.Count() - 1) / cnt + 1, 1);
             datas = temp.Where((x, i) => i%nStep == 0);
-            return true;
         }
 
         //Взять последние записи из бд + кеша
-        public bool GetLastData(int unitIndex, out IEnumerable<UnitData> datas)
+        public void GetLastData(int unitIndex, out IEnumerable<UnitData> datas)
         {
             int cnt = ConfigLayer.graphPointCount;
             int maxCnt = ConfigLayer.unitCount * cnt - _dataCache[_swapIndex].Count;
@@ -84,7 +83,6 @@ namespace KantVinoV2 //end 14_07_2015
                 select s;
 
             datas = temp.Skip(Math.Max(temp.Count() - cnt, 0));
-            return true;
         }
 
         public void Open()
