@@ -25,5 +25,22 @@ namespace KantVinoV2
 
         [Ignore]
         public int ErrorCode { get; set; }
+
+        public double GetValue(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return Term1;
+                case 1:
+                    return Term2;
+                case 2:
+                    return Pressure;
+                case 3:
+                    return Level;
+                default:
+                    return double.NaN;
+            }
+        }
     }
 }

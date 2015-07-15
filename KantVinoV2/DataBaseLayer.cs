@@ -27,7 +27,7 @@ namespace KantVinoV2 //end 14_07_2015
         }
 
         public bool GetDataAtTime(double timeFrom, double timeTo, int unitIndex,
-            out IEnumerable<KeyValuePair<double, double>[]> datas)
+            out IEnumerable<UnitData> datas)
         {
             int cnt = ConfigLayer.graphPointCount;
 
@@ -37,22 +37,12 @@ namespace KantVinoV2 //end 14_07_2015
                 select s;
 
             //Если набралось больше, чем надо, надо что-то пропустить
-            int skipV = Math.Max((temp.Count() - 1)/cnt + 1, 1);
-            int i = 0;
-
-            datas = from s in temp
-                where (i++ % skipV) == 0
-                select new KeyValuePair<double, double>[]
-                {
-                    new KeyValuePair<double, double>(s.Time, s.Term1),
-                    new KeyValuePair<double, double>(s.Time, s.Term2),
-                    new KeyValuePair<double, double>(s.Time, s.Pressure),
-                    new KeyValuePair<double, double>(s.Time, s.Level)
-                };
+            int nStep = Math.Max((temp.Count() - 1) / cnt + 1, 1);
+            datas = temp.Where((x, i) => i%nStep == 0);
             return true;
         }
 
-        public bool GetLastData(int unitIndex, out IEnumerable<KeyValuePair<double, double>[]> datas)
+        public bool GetLastData(int unitIndex, out IEnumerable<UnitData> datas)
         {
             //Возвращаем чуть меньше, т.к. будут добавлятся свежие данные
             int cnt = ConfigLayer.graphPointCount - 2;
@@ -65,14 +55,7 @@ namespace KantVinoV2 //end 14_07_2015
                 orderby s.Time
                 select s;
 
-            datas = from s in temp.Skip(Math.Max(temp.Count() - cnt, 0))
-                select new KeyValuePair<double, double>[]
-                {
-                    new KeyValuePair<double, double>(s.Time, s.Term1),
-                    new KeyValuePair<double, double>(s.Time, s.Term2),
-                    new KeyValuePair<double, double>(s.Time, s.Pressure),
-                    new KeyValuePair<double, double>(s.Time, s.Level)
-                };
+            datas = temp.Skip(Math.Max(temp.Count() - cnt, 0));
             return true;
         }
 

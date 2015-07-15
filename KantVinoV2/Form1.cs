@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -51,13 +52,13 @@ namespace KantVinoV2
         {
             XDate toDate = DateTime.Now;
             XDate fromDate = toDate;
-            fromDate.AddHours(-1);
-            List<UnitData> q = new List<UnitData>();
-            dbl.GetDataAtTime(fromDate, toDate, 0, out q);
-
+            fromDate.AddHours(-5);
+            IEnumerable<UnitData> q;
+            dbl.GetDataAtTime(fromDate, toDate, 2, out q);
+            textBox1.Text = "";
             foreach (var i in q)
             {
-                textBox1.AppendText(string.Format("{0} {1} {2}\r\n",i.Id, i.Time, i.Level));
+                textBox1.AppendText(string.Format("{0} \t{1} \t{2}\r\n",((XDate)i.Time).DateTime.ToLongTimeString(), i.GetValue(0), i.GetValue(1)));
             }
         }
     }
