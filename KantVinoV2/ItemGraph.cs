@@ -152,12 +152,15 @@ namespace KantVinoV2
                 if (i == 1)
                 {
                     config = ConfigLayer.singleGraphConfigs[0];
-                    _singleGraph[0].AddCurve(pane, config.curveName,  config.curveMeasure, config.curveColor, 
-                        ConfigLayer.GraphConfig.sType, ConfigLayer.graphPointCount);
+
+                    _singleGraph[0].AddCurve(pane, config.curveName, config.curveMeasure,
+                        config.curveColor, config.sType, ConfigLayer.graphPointCount);
+
                     config = ConfigLayer.singleGraphConfigs[1];
                 }
-                _singleGraph[i].AddCurve(pane, config.curveName, config.curveMeasure, config.curveColor, 
-                    ConfigLayer.GraphConfig.sType, ConfigLayer.graphPointCount);
+
+                _singleGraph[i].AddCurve(pane, config.curveName, config.curveMeasure,
+                    config.curveColor, config.sType, ConfigLayer.graphPointCount);
 
                 masterPane.Add(pane);
             }

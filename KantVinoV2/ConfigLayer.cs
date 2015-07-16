@@ -23,7 +23,7 @@ namespace KantVinoV2
         //Параметры калибровки
         public static UnitConfig[] unitsConfig = new UnitConfig[20]
         {
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
             new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
             new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
             new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
@@ -68,6 +68,7 @@ namespace KantVinoV2
             public string curveMeasure;
             public string curveName;
             public Color curveColor;
+            public SymbolType sType;
         }
 
         public static SingleGraphConfig[] singleGraphConfigs = new SingleGraphConfig[4]
@@ -80,15 +81,17 @@ namespace KantVinoV2
                 curveName = "Температура1",
                 curveMeasure = "C",
                 curveColor = Color.Green,
+                 sType = SymbolType.Plus
             },
             new SingleGraphConfig()
             {
-                yMin = -10.0,
-                yMax = 90.0,
-                isAuto = true,
+                yMin = 20.0,
+                yMax = 40.0,
+                isAuto = false,
                 curveName = "Температура2",
                 curveMeasure = "C",
-                curveColor = Color.Red
+                curveColor = Color.Red,
+                 sType = SymbolType.Star
             },
             new SingleGraphConfig()
             {
@@ -97,7 +100,8 @@ namespace KantVinoV2
                 isAuto = true,
                 curveName = "Давление",
                 curveMeasure = "атм",
-                curveColor = Color.Green
+                curveColor = Color.Green,
+                 sType = SymbolType.Plus
             },
             new SingleGraphConfig()
             {
@@ -106,14 +110,14 @@ namespace KantVinoV2
                 isAuto = true,
                 curveName = "Уровень",
                 curveMeasure = "м",
-                curveColor = Color.Green
+                curveColor = Color.Green,
+                 sType = SymbolType.Plus
             }
         };
 
 
         public class GraphConfig
         {
-            public static SymbolType sType = SymbolType.Plus;
             public static int timeContinueAtPause = 2;
             public static int timeContinueAtReload = 5;
             public static int timeVisibleLine = 100;

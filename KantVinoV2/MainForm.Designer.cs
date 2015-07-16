@@ -39,8 +39,10 @@
             this.interviewTimer = new System.Windows.Forms.Timer(this.components);
             this.rtbStatus = new System.Windows.Forms.RichTextBox();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.тутДолжноБытьМенюToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTabControl.SuspendLayout();
             this.mainStatus.SuspendLayout();
+            this.mainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -88,6 +90,8 @@
             // 
             // mainMenu
             // 
+            this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.тутДолжноБытьМенюToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
             this.mainMenu.Size = new System.Drawing.Size(673, 24);
@@ -125,6 +129,12 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(49, 17);
             this.toolStripStatusLabel1.Text = "Статус: ";
             // 
+            // тутДолжноБытьМенюToolStripMenuItem
+            // 
+            this.тутДолжноБытьМенюToolStripMenuItem.Name = "тутДолжноБытьМенюToolStripMenuItem";
+            this.тутДолжноБытьМенюToolStripMenuItem.Size = new System.Drawing.Size(148, 20);
+            this.тутДолжноБытьМенюToolStripMenuItem.Text = "Тут должно быть меню";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -143,6 +153,8 @@
             this.mainTabControl.ResumeLayout(false);
             this.mainStatus.ResumeLayout(false);
             this.mainStatus.PerformLayout();
+            this.mainMenu.ResumeLayout(false);
+            this.mainMenu.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -160,6 +172,7 @@
         private System.Windows.Forms.Timer interviewTimer;
         private System.Windows.Forms.RichTextBox rtbStatus;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripMenuItem тутДолжноБытьМенюToolStripMenuItem;
     }
 }
 
