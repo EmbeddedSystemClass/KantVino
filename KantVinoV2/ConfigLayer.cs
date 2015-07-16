@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZedGraph;
 
 namespace KantVinoV2
 {
@@ -22,26 +23,26 @@ namespace KantVinoV2
         //Параметры калибровки
         public static UnitConfig[] unitsConfig = new UnitConfig[20]
         {
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
             new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0}
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0}
         };
 
         //Константные параметры
@@ -52,8 +53,8 @@ namespace KantVinoV2
         public static int timeSaveCache = 10;
 
         //Параметры порта, требуется перезагрузка настроек
-        public static string port = "COM1";
-        public static string baudRate = "9600";
+        public static string port = "COM4";
+        public static string baudRate = "38400";
 
         public static int timeInterview = 1;
 
@@ -64,6 +65,7 @@ namespace KantVinoV2
             public double yMax;
             public bool isAuto;
 
+            public string curveMeasure;
             public string curveName;
             public Color curveColor;
         }
@@ -72,18 +74,20 @@ namespace KantVinoV2
         {
             new SingleGraphConfig()
             {
-                yMin = 0.0,
-                yMax = 10.0,
+                yMin = -10.0,
+                yMax = 90.0,
                 isAuto = true,
-                curveName = "Температура1 С",
-                curveColor = Color.Green
+                curveName = "Температура1",
+                curveMeasure = "C",
+                curveColor = Color.Green,
             },
             new SingleGraphConfig()
             {
-                yMin = 0.0,
-                yMax = 10.0,
+                yMin = -10.0,
+                yMax = 90.0,
                 isAuto = true,
-                curveName = "Температура2 С",
+                curveName = "Температура2",
+                curveMeasure = "C",
                 curveColor = Color.Red
             },
             new SingleGraphConfig()
@@ -91,7 +95,8 @@ namespace KantVinoV2
                 yMin = 0.0,
                 yMax = 10.0,
                 isAuto = true,
-                curveName = "Давление атм",
+                curveName = "Давление",
+                curveMeasure = "атм",
                 curveColor = Color.Green
             },
             new SingleGraphConfig()
@@ -99,7 +104,8 @@ namespace KantVinoV2
                 yMin = 0.0,
                 yMax = 10.0,
                 isAuto = true,
-                curveName = "Уровень м",
+                curveName = "Уровень",
+                curveMeasure = "м",
                 curveColor = Color.Green
             }
         };
@@ -107,6 +113,7 @@ namespace KantVinoV2
 
         public class GraphConfig
         {
+            public static SymbolType sType = SymbolType.Plus;
             public static int timeContinueAtPause = 2;
             public static int timeContinueAtReload = 5;
             public static int timeVisibleLine = 100;

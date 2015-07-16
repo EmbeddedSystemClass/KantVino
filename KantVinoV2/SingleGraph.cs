@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,9 @@ namespace KantVinoV2
     internal class SingleGraph
     {
         private RollingPointPairList _dataPointList = null;
+        private LineItem _myCurve = null; 
 
-        public void InitPane(GraphPane pane, double ymin = 0, double ymax = 0, bool isYAuto = true, string title = "", string xTitle = "", string yTitle = "")
+        public void InitPane(GraphPane pane, string title = "", string xTitle = "", string yTitle = "")
         {
             // Отключаем заголовок
             pane.Title.IsVisible = false;
@@ -55,41 +57,34 @@ namespace KantVinoV2
             // нужно учитывать только видимый интервал графика
             pane.IsBoundedRanges = true;
 
-            //Устанавливаем интересующий нас интервал по оси Y
-            pane.YAxis.Scale.Min = ymin;
-            pane.YAxis.Scale.Max = ymax;
-            // По оси Y установим автоматический подбор масштаба
-            pane.YAxis.Scale.MinAuto = isYAuto;
-            pane.YAxis.Scale.MaxAuto = isYAuto;
-
             // Очистим список кривых на тот случай, если до этого сигналы уже были нарисованы
             pane.CurveList.Clear();
         }
 
-        public void AddCurve(GraphPane pane, string name, Color color, int capacity)
+        public void AddCurve(GraphPane pane, string name, string measure, Color color, SymbolType sType, int capacity)
         {
             _dataPointList = new RollingPointPairList(capacity);
 
             // Добавим кривую пока еще без каких-либо точек
-            pane.AddCurve(name, _dataPointList, color, SymbolType.None);
+            _myCurve = pane.AddCurve(string.Format("{0} ({1})",name,measure), _dataPointList, color, sType);
         }
 
         //Загрузка массива данных
-        public void ReloadData(IEnumerable<UnitData> pointList, int index) 
+        public void ReloadData(IEnumerable<UnitData> pointList, int i) 
         {
             if (_dataPointList == null) return;
             _dataPointList.Clear();
             foreach (UnitData point in pointList)
             {
-                _dataPointList.Add(point.GetValue(index), point.Time);
+                _dataPointList.Add((XDate)point.Time, point.GetValue(i));
             }
         }
 
         //Добавление даннх
-        public void UpdateData(double data, double time) 
+        public void UpdateData(double data, DateTime time)
         {
             if (_dataPointList == null) return;
-            _dataPointList.Add(time, data);
+            _dataPointList.Add((XDate)time, data);
         }
     }
 }

@@ -38,8 +38,6 @@ namespace KantVinoV2 //end 13_07_2015
 
             _comPort.DataReceived += ComPort_DataReceived;
              _comPort.PortClosed += ComPort_PortClosed;
-
-            for (int i = 0; i < ConfigLayer.unitCount; _unitsData[i++] = new UnitData()) ;
         }
 
         private void ReadDataTimer_Tick(object sender, EventArgs e)
@@ -88,10 +86,17 @@ namespace KantVinoV2 //end 13_07_2015
         public bool InterviewAllSensor() //Опрос всех сенсоров
         {
             if (_readDataTimer.Enabled) return false;
+
+            for (int i = 0; i < ConfigLayer.unitCount; i++)
+            {
+                _unitsData[i] = new UnitData();
+            }
+
             _readDataTimer.Enabled = true;
             _unitsIndex = 0;
             _waitTime = 0;
             _isWaitData = false;
+
             return true;
         }
 
@@ -173,6 +178,7 @@ namespace KantVinoV2 //end 13_07_2015
                 errorCode |= InputErrors.ERROR_COUNT;
             }
 
+            _unitsData[_unitsIndex].Index = _unitsIndex;
             _unitsData[_unitsIndex].ErrorCode = errorCode;
 
             _isWaitData = false;

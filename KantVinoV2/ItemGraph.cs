@@ -25,7 +25,7 @@ namespace KantVinoV2
 
             LoadGraphSettings(); //Загружаем настройки графиков
 
-            UpdateAsis((XDate)DateTime.Now);
+            UpdateAsis(DateTime.Now);
 
             // События 
             zGraph.ZoomEvent += Graph_ZoomEvent;
@@ -38,7 +38,7 @@ namespace KantVinoV2
             for (int i = 0; i < 4; i++)
             {
                 if(((data.ErrorCode>>(i*2))&3) == 0)
-                    _singleGraph[0].UpdateData(data.GetValue(i), data.Time);
+                    _singleGraph[i].UpdateData(data.GetValue(i), data.Time);
             }
 
             if (isUpdateAxis)
@@ -47,31 +47,42 @@ namespace KantVinoV2
             }
         }
 
-        public void ReloadData(IEnumerable<UnitData> datas, double timeStartVisible)
+        public void ReloadData(IEnumerable<UnitData> datas, DateTime timeStartVisible)
         {
             for (int i = 0; i < 4; i++)
             {
-                _singleGraph[i].ReloadData(datas, _itemIndex);
+                _singleGraph[i].ReloadData(datas, i);
             }
 
             UpdateAsis(timeStartVisible, true);
         }
 
-        private void UpdateAsis(double time, bool isFromNotTo = false)
+        private void UpdateAsis(DateTime time, bool isFromNotTo = false)
         {
-            XDate startTime = time;
-            XDate endTime = time;
+            DateTime startTime = new DateTime(time.Ticks);
+            DateTime endTime = new DateTime(time.Ticks);
+
             if (isFromNotTo)
             {
-                endTime.AddSeconds(ConfigLayer.GraphConfig.timeVisibleLine);
+                endTime = time.AddSeconds(ConfigLayer.GraphConfig.timeVisibleLine);
             }
             else
             {
-                startTime.AddSeconds(-ConfigLayer.GraphConfig.timeVisibleLine);
+                startTime = time.AddSeconds(-ConfigLayer.GraphConfig.timeVisibleLine);
             }
 
-            zGraph.MasterPane[0].XAxis.Scale.Min = startTime;
-            zGraph.MasterPane[0].XAxis.Scale.Max = endTime;
+            for (int i = 0; i < 3; i++)
+            {
+                //Устанавливаем интересующий нас интервал по оси Y
+                zGraph.MasterPane[i].YAxis.Scale.Min = ConfigLayer.singleGraphConfigs[i + 1].yMin;
+                zGraph.MasterPane[i].YAxis.Scale.Max = ConfigLayer.singleGraphConfigs[i + 1].yMax;
+                //По оси Y установим автоматический подбор масштаба
+                zGraph.MasterPane[i].YAxis.Scale.MinAuto = ConfigLayer.singleGraphConfigs[i + 1].isAuto;
+                zGraph.MasterPane[i].YAxis.Scale.MaxAuto = ConfigLayer.singleGraphConfigs[i + 1].isAuto;
+                //Устанавливаем время по X
+                zGraph.MasterPane[i].XAxis.Scale.Min = (XDate)startTime;
+                zGraph.MasterPane[i].XAxis.Scale.Max = (XDate)endTime;
+            }
 
             zGraph.AxisChange();
             zGraph.Invalidate();
@@ -97,11 +108,11 @@ namespace KantVinoV2
             ResumeUpdateGraph();
         }
 
-        public delegate void ChangeTimeGraphEventHandler(double time);
+        public delegate void ChangeTimeGraphEventHandler(DateTime time);
         public event ChangeTimeGraphEventHandler ChangeTimeGraph;
         private void dtpLoadData_ValueChanged(object sender, EventArgs e)
         {
-             ChangeTimeGraph((XDate)dtpLoadData.Value);
+             ChangeTimeGraph(dtpLoadData.Value);
         }
         
 #endregion      
@@ -137,14 +148,16 @@ namespace KantVinoV2
                 GraphPane pane = new GraphPane();
                 var config = ConfigLayer.singleGraphConfigs[i];
 
-                _singleGraph[i].InitPane(pane, config.yMin, config.yMax, config.isAuto);
+                _singleGraph[i].InitPane(pane);
                 if (i == 1)
                 {
                     config = ConfigLayer.singleGraphConfigs[0];
-                    _singleGraph[0].AddCurve(pane, config.curveName, config.curveColor, ConfigLayer.graphPointCount);
+                    _singleGraph[0].AddCurve(pane, config.curveName,  config.curveMeasure, config.curveColor, 
+                        ConfigLayer.GraphConfig.sType, ConfigLayer.graphPointCount);
                     config = ConfigLayer.singleGraphConfigs[1];
                 }
-                _singleGraph[i].AddCurve(pane, config.curveName, config.curveColor, ConfigLayer.graphPointCount);
+                _singleGraph[i].AddCurve(pane, config.curveName, config.curveMeasure, config.curveColor, 
+                    ConfigLayer.GraphConfig.sType, ConfigLayer.graphPointCount);
 
                 masterPane.Add(pane);
             }

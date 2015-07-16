@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using ZedGraph;
 
 namespace KantVinoV2
 {
@@ -51,9 +52,27 @@ namespace KantVinoV2
                 //порт
                 //_interfaceLayers[i].UpdateData();
             }
+        }
 
-           
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            mainStatus.Items.Insert(1, new ToolStripControlHost (rtbStatus));
 
+            _dataBaseLayer.Open();
+
+            InitTabPage();
+            InitInterface();
+
+            _comPortLayer.InterviewComplete += ReceiviDataComplete;
+            _comPortLayer.PortOpen();
+
+            interviewTimer.Interval = ConfigLayer.timeInterview * 1000;
+            interviewTimer.Enabled = true;
+        }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _dataBaseLayer.Close();
+            _comPortLayer.PortClose();
         }
 
         private class rtfText
@@ -80,53 +99,39 @@ namespace KantVinoV2
 
         private void ReceiviDataComplete(bool isPortOK, UnitData[] datas)
         {
-            rtbStatus.Clear();
-            rtbStatus.AppendText(" ");
+            rtbStatus.Text = " ";
 
             rtfText rtf = new rtfText(rtbStatus);
 
             if (!isPortOK)
             {
-                rtf.AppendText(Color.Red, string.Format("Порт {0} закрыт!",ConfigLayer.port));
+                rtf.AppendText(Color.Red, string.Format("Порт {0} закрыт!", ConfigLayer.port));
                 return;
             }
+
+            DateTime curTime = DateTime.Now;
+
             for (int i = 0; i < ConfigLayer.unitCount; i++)
             {
                 if (ConfigLayer.unitsConfig[i].isEnable)
                 {
+                    datas[i].Time = curTime;
+ 
                     if ((datas[i].ErrorCode & 0xFF00) == 0)
                     {
                         _dataBaseLayer.AddDataToCache(datas[i]);
-                        rtf.AppendText(((datas[i].ErrorCode & 0xFF) == 0)?Color.Green:Color.Orange, (i + 1).ToString());
+                        rtf.AppendText(((datas[i].ErrorCode & 0xFF) == 0) ? Color.Green : Color.Orange, (i + 1).ToString());
                     }
                     else
                     {
-                        rtf.AppendText(Color.Red, (i+1).ToString());
+                        rtf.AppendText(Color.Red, (i + 1).ToString());
                     }
+
                     _interfaceLayers[i].UpdateData(datas[i]);
                 }
             }
 
-            rtf.AppendText(Color.Gray, string.Format("at {0}", DateTime.Now));
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            _dataBaseLayer.Open();
-
-            InitTabPage();
-            InitInterface();
-
-            _comPortLayer.InterviewComplete += ReceiviDataComplete;
-            _comPortLayer.PortOpen();
-
-            interviewTimer.Interval = ConfigLayer.timeInterview * 1000;
-            interviewTimer.Enabled = true;
-        }
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _dataBaseLayer.Close();
-            _comPortLayer.PortClose();
+            rtf.AppendText(Color.Gray, string.Format("at {0}", curTime));
         }
 
         private void InitTabPage()

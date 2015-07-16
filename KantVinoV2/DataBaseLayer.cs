@@ -57,7 +57,7 @@ namespace KantVinoV2 //end 14_07_2015
 
 
         //Взять записи из бд за период
-        public void GetDataAtTime(double timeFrom, double timeTo, int unitIndex, 
+        public void GetDataAtTime(DateTime timeFrom, DateTime timeTo, int unitIndex, 
             out IEnumerable<UnitData> datas)
         {
             int cnt = ConfigLayer.graphPointCount;

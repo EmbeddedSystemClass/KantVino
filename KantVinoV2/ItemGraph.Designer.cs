@@ -66,9 +66,11 @@
             // 
             // dtpLoadData
             // 
-            this.dtpLoadData.Location = new System.Drawing.Point(183, 3);
+            this.dtpLoadData.CustomFormat = "d.mm.yyyy  H:mm:ss ";
+            this.dtpLoadData.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpLoadData.Location = new System.Drawing.Point(141, 3);
             this.dtpLoadData.Name = "dtpLoadData";
-            this.dtpLoadData.Size = new System.Drawing.Size(179, 20);
+            this.dtpLoadData.Size = new System.Drawing.Size(172, 20);
             this.dtpLoadData.TabIndex = 1;
             this.dtpLoadData.ValueChanged += new System.EventHandler(this.dtpLoadData_ValueChanged);
             // 

@@ -25,7 +25,7 @@ namespace KantVinoV2
             _itemIndex = itemIndex;
             InitializeComponent();
 
-            lblNumber.Text = string.Format("№ {0}", _itemIndex);
+            lblNumber.Text = string.Format("№ {0}", _itemIndex+1);
             //Событие клика генерируем при клике любого элемента
             foreach (Control control in this.Controls)
             {
@@ -66,10 +66,15 @@ namespace KantVinoV2
 
         public void UpdateData(UnitData data)
         {
-            lblTemper1.Text = DataFormatStr(data.ErrorCode >> 0,false, "{0} °C", data.Term1);
-            lblTemper2.Text = DataFormatStr(data.ErrorCode >> 2, false, "{0} °C", data.Term2);
-            lblPressure.Text = DataFormatStr(data.ErrorCode >> 4, true, "{0} атм", data.Pressure);
-            lblLevel.Text = DataFormatStr(data.ErrorCode >> 6, true, "{0} м", data.Level);  
+            var measure = ConfigLayer.singleGraphConfigs;
+            lblTemper1.Text = DataFormatStr(data.ErrorCode >> 0, false, 
+                "{0} "+ measure[0].curveMeasure, data.Term1);
+            lblTemper2.Text = DataFormatStr(data.ErrorCode >> 2, false, 
+                "{0} " + measure[1].curveMeasure, data.Term2);
+            lblPressure.Text = DataFormatStr(data.ErrorCode >> 4, true, 
+                "{0} "+ measure[2].curveMeasure, data.Pressure);
+            lblLevel.Text = DataFormatStr(data.ErrorCode >> 6, true, 
+                "{0} "+ measure[3].curveMeasure, data.Level);  
         }
 
         public void InitData(bool isError)

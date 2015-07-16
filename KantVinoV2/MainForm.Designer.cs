@@ -38,7 +38,9 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.interviewTimer = new System.Windows.Forms.Timer(this.components);
             this.rtbStatus = new System.Windows.Forms.RichTextBox();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainTabControl.SuspendLayout();
+            this.mainStatus.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,6 +78,8 @@
             // 
             // mainStatus
             // 
+            this.mainStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
             this.mainStatus.Location = new System.Drawing.Point(0, 416);
             this.mainStatus.Name = "mainStatus";
             this.mainStatus.Size = new System.Drawing.Size(673, 22);
@@ -105,15 +109,21 @@
             // 
             // rtbStatus
             // 
-            this.rtbStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtbStatus.Location = new System.Drawing.Point(0, 418);
+            this.rtbStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.rtbStatus.Location = new System.Drawing.Point(94, 422);
+            this.rtbStatus.Multiline = false;
             this.rtbStatus.Name = "rtbStatus";
             this.rtbStatus.ReadOnly = true;
             this.rtbStatus.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.rtbStatus.Size = new System.Drawing.Size(383, 20);
+            this.rtbStatus.Size = new System.Drawing.Size(383, 16);
             this.rtbStatus.TabIndex = 4;
-            this.rtbStatus.Text = "";
+            this.rtbStatus.Text = "Загрузка";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(49, 17);
+            this.toolStripStatusLabel1.Text = "Статус: ";
             // 
             // MainForm
             // 
@@ -131,6 +141,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.mainTabControl.ResumeLayout(false);
+            this.mainStatus.ResumeLayout(false);
+            this.mainStatus.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -147,6 +159,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Timer interviewTimer;
         private System.Windows.Forms.RichTextBox rtbStatus;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

@@ -53,7 +53,7 @@
             // lblTemper1
             // 
             this.lblTemper1.AutoSize = true;
-            this.lblTemper1.Location = new System.Drawing.Point(147, 41);
+            this.lblTemper1.Location = new System.Drawing.Point(138, 41);
             this.lblTemper1.Name = "lblTemper1";
             this.lblTemper1.Size = new System.Drawing.Size(35, 13);
             this.lblTemper1.TabIndex = 1;
@@ -62,7 +62,7 @@
             // lblTemper2
             // 
             this.lblTemper2.AutoSize = true;
-            this.lblTemper2.Location = new System.Drawing.Point(147, 69);
+            this.lblTemper2.Location = new System.Drawing.Point(138, 69);
             this.lblTemper2.Name = "lblTemper2";
             this.lblTemper2.Size = new System.Drawing.Size(35, 13);
             this.lblTemper2.TabIndex = 2;
@@ -71,7 +71,7 @@
             // lblPressure
             // 
             this.lblPressure.AutoSize = true;
-            this.lblPressure.Location = new System.Drawing.Point(147, 99);
+            this.lblPressure.Location = new System.Drawing.Point(138, 99);
             this.lblPressure.Name = "lblPressure";
             this.lblPressure.Size = new System.Drawing.Size(35, 13);
             this.lblPressure.TabIndex = 3;
@@ -80,7 +80,7 @@
             // lblLevel
             // 
             this.lblLevel.AutoSize = true;
-            this.lblLevel.Location = new System.Drawing.Point(147, 127);
+            this.lblLevel.Location = new System.Drawing.Point(138, 127);
             this.lblLevel.Name = "lblLevel";
             this.lblLevel.Size = new System.Drawing.Size(35, 13);
             this.lblLevel.TabIndex = 4;
@@ -91,36 +91,36 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(52, 41);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 13);
+            this.label1.Size = new System.Drawing.Size(86, 13);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Температура 1 :";
+            this.label1.Text = "Температура 1:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(52, 69);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(89, 13);
+            this.label2.Size = new System.Drawing.Size(86, 13);
             this.label2.TabIndex = 6;
-            this.label2.Text = "Температура 2 :";
+            this.label2.Text = "Температура 2:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(52, 99);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 13);
+            this.label3.Size = new System.Drawing.Size(61, 13);
             this.label3.TabIndex = 7;
-            this.label3.Text = "Давление :";
+            this.label3.Text = "Давление:";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(52, 127);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(57, 13);
+            this.label4.Size = new System.Drawing.Size(54, 13);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Уровень :";
+            this.label4.Text = "Уровень:";
             // 
             // panel1
             // 
