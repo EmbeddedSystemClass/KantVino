@@ -14,15 +14,20 @@ namespace KantVinoV2 //end 13_07_2015
         private ComPort _comPort = new ComPort();
 
         private int _unitsIndex = 0;
-        public UnitData[] _unitsData = new UnitData[ConfigLayer.unitCount];
+        private UnitData[] _unitsData = new UnitData[ConfigLayer.unitCount];
 
         private int _waitTime = 0;
         private bool _isWaitData = false;
 
 
-        public void ReloadSettings() //Перезагрузка настроек
+        public void PortOpen() //Перезагрузка настроек
         {
             _comPort.Open(ConfigLayer.port, ConfigLayer.baudRate);
+        }
+
+        public void PortClose()
+        {
+            _comPort.Close();
         }
 
         public ComPortLayer()
@@ -31,7 +36,6 @@ namespace KantVinoV2 //end 13_07_2015
             _readDataTimer.Enabled = false;
             _readDataTimer.Tick += ReadDataTimer_Tick;
 
-            ReloadSettings();
             _comPort.DataReceived += ComPort_DataReceived;
              _comPort.PortClosed += ComPort_PortClosed;
 
@@ -54,7 +58,7 @@ namespace KantVinoV2 //end 13_07_2015
                 if (_unitsIndex == ConfigLayer.unitCount)
                 {
                     _readDataTimer.Enabled = false;
-                    InterviewComplete(true);
+                    InterviewComplete(true, _unitsData);
                     return;
                 }
 
@@ -81,23 +85,25 @@ namespace KantVinoV2 //end 13_07_2015
 
 
 
-        public void InterviewAllSensor() //Опрос всех сенсоров
+        public bool InterviewAllSensor() //Опрос всех сенсоров
         {
+            if (_readDataTimer.Enabled) return false;
             _readDataTimer.Enabled = true;
             _unitsIndex = 0;
             _waitTime = 0;
             _isWaitData = false;
+            return true;
         }
 
         //Опрос завершен
-        public delegate void InterviewCompleteEventHandler(bool isPortOK);
+        public delegate void InterviewCompleteEventHandler(bool isPortOK, UnitData[] datas);
         public event InterviewCompleteEventHandler InterviewComplete;
 
         //Ошибка порта
         private void ComPort_PortClosed()
         {
             _readDataTimer.Enabled = false;
-            InterviewComplete(false);
+            InterviewComplete(false, _unitsData);
         }
 
 

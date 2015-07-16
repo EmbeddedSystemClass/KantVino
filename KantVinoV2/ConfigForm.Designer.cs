@@ -1,4 +1,4 @@
-﻿namespace Кант_Вино
+﻿namespace KantVinoV2
 {
     partial class ConfigForm
     {

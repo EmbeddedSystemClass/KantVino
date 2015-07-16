@@ -31,15 +31,54 @@ namespace KantVinoV2
             {
                 control.Click += ItemControl_Click;
             }
+
+            InitData(false);
         }
 
-        
-        public void UpdateItemData(double temper1, double temper2, double pressure, double level)
+        private string DataFormatStr(int errCode, bool isADC, string formatStr, double val)
         {
-            lblTemper1.Text = string.Format("{0} °C", temper1);
-            lblTemper2.Text = string.Format("{0} °C", temper2);
-            lblPressure.Text = string.Format("{0} атм", pressure);
-            lblLevel.Text = string.Format("{0} м", level);
+            if (isADC)
+            {
+                switch (errCode & 0x03)
+                {
+                    case 1:
+                        return "Датчика нет!";
+                    case 2:
+                        return "?";
+                    case 3:
+                        return "Датчика нет!";
+                }
+            }
+            else
+            {
+                switch (errCode & 0x03)
+                {
+                    case 1:
+                        return "Ошибка CRC";
+                    case 2:
+                        return "?";
+                    case 3:
+                        return "Датчика нет!";
+                }
+            }
+            return string.Format(formatStr, val);
+        }
+
+        public void UpdateData(UnitData data)
+        {
+            lblTemper1.Text = DataFormatStr(data.ErrorCode >> 0,false, "{0} °C", data.Term1);
+            lblTemper2.Text = DataFormatStr(data.ErrorCode >> 2, false, "{0} °C", data.Term2);
+            lblPressure.Text = DataFormatStr(data.ErrorCode >> 4, true, "{0} атм", data.Pressure);
+            lblLevel.Text = DataFormatStr(data.ErrorCode >> 6, true, "{0} м", data.Level);  
+        }
+
+        public void InitData(bool isError)
+        {
+            string text = (isError) ? "Err":"NaN";
+            lblTemper1.Text = text;
+            lblTemper2.Text = text;
+            lblPressure.Text = text;
+            lblLevel.Text = text;
         }
     }
 }

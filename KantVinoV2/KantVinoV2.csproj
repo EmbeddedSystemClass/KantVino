@@ -59,12 +59,6 @@
     </Compile>
     <Compile Include="ConfigLayer.cs" />
     <Compile Include="DataBaseLayer.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="InterfaceLayer.cs" />
     <Compile Include="ItemControl.cs">
       <SubType>UserControl</SubType>
@@ -92,9 +86,6 @@
     <Compile Include="UnitData.cs" />
     <EmbeddedResource Include="ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ItemControl.resx">
       <DependentUpon>ItemControl.cs</DependentUpon>

@@ -66,7 +66,7 @@ namespace KantVinoV2
             pane.CurveList.Clear();
         }
 
-        public void AddCurve(GraphPane pane, string name, Color color, int capacity = 8192)
+        public void AddCurve(GraphPane pane, string name, Color color, int capacity)
         {
             _dataPointList = new RollingPointPairList(capacity);
 
@@ -75,41 +75,21 @@ namespace KantVinoV2
         }
 
         //Загрузка массива данных
-        public void ReloadData(PointPair[] pointList) 
+        public void ReloadData(IEnumerable<UnitData> pointList, int index) 
         {
             if (_dataPointList == null) return;
             _dataPointList.Clear();
-            foreach (PointPair point in pointList)
+            foreach (UnitData point in pointList)
             {
-                _dataPointList.Add(point);
+                _dataPointList.Add(point.GetValue(index), point.Time);
             }
         }
 
         //Добавление даннх
-        public void UpdateData(double data, XDate time) 
+        public void UpdateData(double data, double time) 
         {
             if (_dataPointList == null) return;
             _dataPointList.Add(time, data);
         }
-    }
-
-    [Serializable]
-    public class SingleGraphConfig
-    {
-        public double ymin { get; set; }
-        public double ymax { get; set; }
-        public bool isYAuto { get; set; }
-        public string curveName { get; set; }
-
-        [XmlIgnore]
-        public Color curveColor = Color.Black;
-        [XmlElement("curveColor")] //Заставим колор сериализоваться
-        [Browsable(false)]
-        public int curveColor_ForXml
-        {
-            get { return curveColor.ToArgb(); }
-            set { curveColor = Color.FromArgb(value); }
-        }
-        
     }
 }

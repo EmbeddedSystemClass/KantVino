@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using SQLite;
-
 
 namespace KantVinoV2
 {
@@ -40,33 +38,95 @@ namespace KantVinoV2
                 _interfaceLayers[i].LoadLastData += _dataBaseLayer.GetLastData;
                 
                 //вьюха
-                //_interfaceLayers[i].InitGraph
-                //_interfaceLayers[i].UpdateDataInGraph
-                //_interfaceLayers[i].ReloadDataInGraph     
-           
-                //_interfaceLayers[i].ContinueUpdate();
-                //_interfaceLayers[i].PauseUpdate();
-                //_interfaceLayers[i].UserChangeTime();
+                _interfaceLayers[i].InitControl += _itemsControl[i].InitData;
+                _interfaceLayers[i].UpdateDataInControl += _itemsControl[i].UpdateData;
 
+                _interfaceLayers[i].UpdateDataInGraph += _itemsGraph[i].UpdateData;
+                _interfaceLayers[i].ReloadDataInGraph += _itemsGraph[i].ReloadData;
+
+                _itemsGraph[i].ResumeUpdateGraph += _interfaceLayers[i].ContinueUpdate;
+                _itemsGraph[i].PauseUpdateGraph += _interfaceLayers[i].PauseUpdate;
+                _itemsGraph[i].ChangeTimeGraph += _interfaceLayers[i].UserChangeTime;
 
                 //порт
                 //_interfaceLayers[i].UpdateData();
             }
 
            
+
         }
 
+        private class rtfText
+        {
+            private RichTextBox rtb;
+
+            public rtfText(RichTextBox myRtb)
+            {
+                rtb = myRtb;
+            }
+
+            public void AppendText(Color color, string text)
+            {
+                int start = rtb.TextLength;
+                int len = text.Length;
+                rtb.AppendText(text + " ");
+                rtb.SelectionStart = start;
+                rtb.SelectionLength = len;
+                rtb.SelectionColor = color;
+                rtb.SelectionLength = 0;
+            }
+        }
+
+
+        private void ReceiviDataComplete(bool isPortOK, UnitData[] datas)
+        {
+            rtbStatus.Clear();
+            rtbStatus.AppendText(" ");
+
+            rtfText rtf = new rtfText(rtbStatus);
+
+            if (!isPortOK)
+            {
+                rtf.AppendText(Color.Red, string.Format("Порт {0} закрыт!",ConfigLayer.port));
+                return;
+            }
+            for (int i = 0; i < ConfigLayer.unitCount; i++)
+            {
+                if (ConfigLayer.unitsConfig[i].isEnable)
+                {
+                    if ((datas[i].ErrorCode & 0xFF00) == 0)
+                    {
+                        _dataBaseLayer.AddDataToCache(datas[i]);
+                        rtf.AppendText(((datas[i].ErrorCode & 0xFF) == 0)?Color.Green:Color.Orange, (i + 1).ToString());
+                    }
+                    else
+                    {
+                        rtf.AppendText(Color.Red, (i+1).ToString());
+                    }
+                    _interfaceLayers[i].UpdateData(datas[i]);
+                }
+            }
+
+            rtf.AppendText(Color.Gray, string.Format("at {0}", DateTime.Now));
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            _dataBaseLayer.Open();
 
             InitTabPage();
-            
+            InitInterface();
 
+            _comPortLayer.InterviewComplete += ReceiviDataComplete;
+            _comPortLayer.PortOpen();
+
+            interviewTimer.Interval = ConfigLayer.timeInterview * 1000;
+            interviewTimer.Enabled = true;
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            _dataBaseLayer.Close();
+            _comPortLayer.PortClose();
         }
 
         private void InitTabPage()
@@ -105,6 +165,22 @@ namespace KantVinoV2
         {
             int i = (int)((ItemControl)sender).Tag;
             mainTabControl.SelectedIndex = i + 1;
+        }
+
+      
+
+        private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int i = mainTabControl.SelectedIndex - 1;
+            if (i >= 0 && i < ConfigLayer.unitCount)
+            {
+                _interfaceLayers[i].ContinueUpdate();
+            }
+        }
+
+        private void interviewTimer_Tick(object sender, EventArgs e)
+        {
+            _comPortLayer.InterviewAllSensor();
         }
 
         

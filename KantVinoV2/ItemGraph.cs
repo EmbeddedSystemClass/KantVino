@@ -14,16 +14,6 @@ namespace KantVinoV2
     public partial class ItemGraph : UserControl
     {
         private SingleGraph[] _singleGraph = new SingleGraph[4];
-
-        private int _capacity = 8192;
-        private int _periodSeconds = 100;
-        private int _visibleSeconds = 100;
-        private int _timeRegenerationSeconds = 5;
-
-        private bool _isUpdateAxis = false;
-        private bool _isUpdateData = false;
-        private int _tickCounter = 0;
-
         private int _itemIndex = 0;
 
         public ItemGraph(int itemIndex)
@@ -33,80 +23,88 @@ namespace KantVinoV2
 
             toolStrip1.Items.Insert(2, new ToolStripControlHost(dtpLoadData));
 
-
             LoadGraphSettings(); //Загружаем настройки графиков
 
-            _isUpdateData = true;
-            _isUpdateAxis = true;
-            _tickCounter = 0;
-
-            DateTime to = DateTime.Now;
-            DateTime from = to.AddSeconds(-_periodSeconds);
-            LoadDataFromBase(from, to);
+            UpdateAsis((XDate)DateTime.Now);
 
             // События 
             zGraph.ZoomEvent += Graph_ZoomEvent;
             zGraph.ScrollEvent += Graph_ScrollEvent;
         }
 
-        public void AddData(DataStruct data)
+
+        public void UpdateData(UnitData data, bool isUpdateAxis)
         {
-            XDate time = data.time;
-            if (_isUpdateData)
+            for (int i = 0; i < 4; i++)
             {
-                _singleGraph[0].UpdateData(data.temper1, time);
-                _singleGraph[1].UpdateData(data.temper2, time);
-                _singleGraph[2].UpdateData(data.pressure, time);
-                _singleGraph[3].UpdateData(data.level, time);
+                if(((data.ErrorCode>>(i*2))&3) == 0)
+                    _singleGraph[0].UpdateData(data.GetValue(i), data.Time);
             }
-            if (_isUpdateAxis)
+
+            if (isUpdateAxis)
             {
-                DateTime to = data.time;
-                DateTime from = to.AddSeconds(-_visibleSeconds);
-                UpdateAxis(from, to);
+                UpdateAsis(data.Time);
             }
         }
 
-        private void UpdateAxis(DateTime tfrom, DateTime tto)
+        public void ReloadData(IEnumerable<UnitData> datas, double timeStartVisible)
         {
-            XDate from = tfrom;
-            XDate to = tto;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
             {
-                zGraph.MasterPane[i].XAxis.Scale.Min = from;
-                zGraph.MasterPane[i].XAxis.Scale.Max = to;
+                _singleGraph[i].ReloadData(datas, _itemIndex);
             }
+
+            UpdateAsis(timeStartVisible, true);
+        }
+
+        private void UpdateAsis(double time, bool isFromNotTo = false)
+        {
+            XDate startTime = time;
+            XDate endTime = time;
+            if (isFromNotTo)
+            {
+                endTime.AddSeconds(ConfigLayer.GraphConfig.timeVisibleLine);
+            }
+            else
+            {
+                startTime.AddSeconds(-ConfigLayer.GraphConfig.timeVisibleLine);
+            }
+
+            zGraph.MasterPane[0].XAxis.Scale.Min = startTime;
+            zGraph.MasterPane[0].XAxis.Scale.Max = endTime;
 
             zGraph.AxisChange();
             zGraph.Invalidate();
         }
 
+#region События интерфейса
+
+        public delegate void PauseUpdateGraphEventHandler();
+        public event PauseUpdateGraphEventHandler PauseUpdateGraph;
         private void Graph_ScrollEvent(object sender, ScrollEventArgs e)
         {
-            _isUpdateAxis = false;
-            _tickCounter = 0;
+            PauseUpdateGraph();
         }
-
         private void Graph_ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
         {
-            _isUpdateAxis = false;
-            _tickCounter = 0;
+            PauseUpdateGraph();
         }
 
-        private void LoadDataFromBase(DateTime from, DateTime to)
+        public delegate void ResumeUpdateGraphEventHandler();
+        public event ResumeUpdateGraphEventHandler ResumeUpdateGraph;
+        private void btnContinue_Click(object sender, EventArgs e)
         {
-            PointPair[][] pp = new PointPair[4][];
-           
-
-            DBDataLayer.ReadData(out pp, _itemIndex, _capacity, from, to);
-
-            for (int i = 0; i < 4; i++)
-            {
-                _singleGraph[i].ReloadData(pp[i]);
-            }
-
-            UpdateAxis(from, from.AddSeconds(_visibleSeconds));
+            ResumeUpdateGraph();
         }
+
+        public delegate void ChangeTimeGraphEventHandler(double time);
+        public event ChangeTimeGraphEventHandler ChangeTimeGraph;
+        private void dtpLoadData_ValueChanged(object sender, EventArgs e)
+        {
+             ChangeTimeGraph((XDate)dtpLoadData.Value);
+        }
+        
+#endregion      
 
         private void LoadGraphSettings()
         {
@@ -134,20 +132,19 @@ namespace KantVinoV2
             }
 
             // Добавим три графика
-            SingleGraphConfig[] configs = Properties.Settings.Default.ItemsGConfig;
             for (int i = 1; i < 4; i++)
             {
                 GraphPane pane = new GraphPane();
-                SingleGraphConfig config = configs[i];
-                _singleGraph[i].InitPane(pane, config.ymin, config.ymax, config.isYAuto);
+                var config = ConfigLayer.singleGraphConfigs[i];
+
+                _singleGraph[i].InitPane(pane, config.yMin, config.yMax, config.isAuto);
                 if (i == 1)
                 {
-
-                    config = configs[0];
-                    _singleGraph[0].AddCurve(pane, config.curveName, config.curveColor, _capacity);
-                    config = configs[i];
+                    config = ConfigLayer.singleGraphConfigs[0];
+                    _singleGraph[0].AddCurve(pane, config.curveName, config.curveColor, ConfigLayer.graphPointCount);
+                    config = ConfigLayer.singleGraphConfigs[1];
                 }
-                _singleGraph[i].AddCurve(pane, config.curveName, config.curveColor, _capacity);
+                _singleGraph[i].AddCurve(pane, config.curveName, config.curveColor, ConfigLayer.graphPointCount);
 
                 masterPane.Add(pane);
             }
@@ -175,32 +172,6 @@ namespace KantVinoV2
             // Отключаем масштабирование по вертикали
             zGraph.IsEnableVZoom = false;
         }
-
-        private void timer100ms_Tick(object sender, EventArgs e)
-        {
-            if (++_tickCounter>_timeRegenerationSeconds*10)
-            {
-                _isUpdateData = true;
-                _isUpdateAxis = true;
-                _tickCounter--;
-            }
-        }
-
-        private void btnContinue_Click(object sender, EventArgs e)
-        {
-            _isUpdateData = true;
-            _isUpdateAxis = true;
-        }
-
-        private void dtpLoadData_ValueChanged(object sender, EventArgs e)
-        {
-            _isUpdateData = false;
-            _isUpdateAxis = false;
-            _tickCounter = 0;
-
-            DateTime from = dtpLoadData.Value;
-            DateTime to = from.AddSeconds(_periodSeconds);;
-            LoadDataFromBase(from, to);
-        }
+       
     }
 }

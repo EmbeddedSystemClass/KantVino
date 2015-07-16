@@ -35,7 +35,6 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.dtpLoadData = new System.Windows.Forms.DateTimePicker();
             this.zGraph = new ZedGraph.ZedGraphControl();
-            this.timer100ms = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -88,11 +87,6 @@
             this.zGraph.Size = new System.Drawing.Size(750, 523);
             this.zGraph.TabIndex = 2;
             // 
-            // timer100ms
-            // 
-            this.timer100ms.Enabled = true;
-            this.timer100ms.Tick += new System.EventHandler(this.timer100ms_Tick);
-            // 
             // ItemGraph
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -116,6 +110,5 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.DateTimePicker dtpLoadData;
         private ZedGraph.ZedGraphControl zGraph;
-        private System.Windows.Forms.Timer timer100ms;
     }
 }

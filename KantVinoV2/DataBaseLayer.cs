@@ -24,6 +24,10 @@ namespace KantVinoV2 //end 14_07_2015
         {
             _dataCache[_swapIndex].AddRange(datas);
         }
+        public void AddDataToCache(UnitData data)
+        {
+            _dataCache[_swapIndex].Add(data);
+        }
 
 
         private bool SaveCache()

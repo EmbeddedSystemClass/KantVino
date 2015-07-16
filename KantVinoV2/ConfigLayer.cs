@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,6 +55,55 @@ namespace KantVinoV2
         public static string port = "COM1";
         public static string baudRate = "9600";
 
+        public static int timeInterview = 1;
+
+
+        public class SingleGraphConfig
+        {
+            public double yMin;
+            public double yMax;
+            public bool isAuto;
+
+            public string curveName;
+            public Color curveColor;
+        }
+
+        public static SingleGraphConfig[] singleGraphConfigs = new SingleGraphConfig[4]
+        {
+            new SingleGraphConfig()
+            {
+                yMin = 0.0,
+                yMax = 10.0,
+                isAuto = true,
+                curveName = "Температура1 С",
+                curveColor = Color.Green
+            },
+            new SingleGraphConfig()
+            {
+                yMin = 0.0,
+                yMax = 10.0,
+                isAuto = true,
+                curveName = "Температура2 С",
+                curveColor = Color.Red
+            },
+            new SingleGraphConfig()
+            {
+                yMin = 0.0,
+                yMax = 10.0,
+                isAuto = true,
+                curveName = "Давление атм",
+                curveColor = Color.Green
+            },
+            new SingleGraphConfig()
+            {
+                yMin = 0.0,
+                yMax = 10.0,
+                isAuto = true,
+                curveName = "Уровень м",
+                curveColor = Color.Green
+            }
+        };
+
 
         public class GraphConfig
         {
@@ -62,12 +112,28 @@ namespace KantVinoV2
             public static int timeVisibleLine = 100;
             public static int timeLoadLeftLine = 100;
             public static int timeLoadRightLine = 900;
-
-
-            //Параметры оси Y графика
-            public double[] yMin = new double[4];
-            public double[] yMax = new double[4];
-            public bool[] isAuto = new bool[4];
         }
     }
+
+
+    /*
+    [Serializable]
+    public class SingleGraphConfig
+    {
+        public double ymin { get; set; }
+        public double ymax { get; set; }
+        public bool isYAuto { get; set; }
+        public string curveName { get; set; }
+
+        [XmlIgnore]
+        public Color curveColor = Color.Black;
+        [XmlElement("curveColor")] //Заставим колор сериализоваться
+        [Browsable(false)]
+        public int curveColor_ForXml
+        {
+            get { return curveColor.ToArgb(); }
+            set { curveColor = Color.FromArgb(value); }
+        }
+        
+    }*/
 }
