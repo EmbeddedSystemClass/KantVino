@@ -23,39 +23,43 @@ namespace KantVinoV2
         //Параметры калибровки
         public static UnitConfig[] unitsConfig = new UnitConfig[20]
         {
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = true, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0},
-            new UnitConfig(){isEnable = false, coeffLevel = 1.0, coeffPressure = 1.0}
+            new UnitConfig(){isEnable = true, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = true, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512},
+            new UnitConfig(){isEnable = false, coeffLevel = 1.0/512, coeffPressure = 1.0/512}
         };
 
         //Константные параметры
         public static int unitCount = 20;
         public static int graphPointCount = 8192;
 
-        //Параметры бд
-        public static int timeSaveCache = 10;
+        //Параметры бд, требуется перезагрузка настроек Open();
+        public static int timeSaveCache = 10; //*
+        public static int timeSaveBacup = 1000000;
+        public static string dataBasePath = ""; //*
+        public static string bacupPath = "";
 
-        //Параметры порта, требуется перезагрузка настроек
-        public static string port = "COM4";
-        public static string baudRate = "38400";
-
+        //Параметры порта, требуется перезагрузка настроек PortOpen()
+        public static string port = "COM4"; //*
+        public static string baudRate = "38400"; //*
+       
+        //Время опроса датчиков
         public static int timeInterview = 1;
 
 
@@ -118,8 +122,8 @@ namespace KantVinoV2
 
         public class GraphConfig
         {
-            public static int timeContinueAtPause = 2;
-            public static int timeContinueAtReload = 5;
+            public static int timeContinueAtPause = 10;
+            public static int timeContinueAtReload = 20;
             public static int timeVisibleLine = 100;
             public static int timeLoadLeftLine = 100;
             public static int timeLoadRightLine = 900;

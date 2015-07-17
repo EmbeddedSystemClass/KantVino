@@ -17,6 +17,7 @@ namespace KantVinoV2
         public MainForm()
         {
             InitializeComponent();
+            
         }
 
         //Контролы
