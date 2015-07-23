@@ -58,5 +58,53 @@ namespace КантВиноНастройка.Properties {
                 this["DeviceAddr"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsGetData {
+            get {
+                return ((bool)(this["IsGetData"]));
+            }
+            set {
+                this["IsGetData"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int GetDataTime {
+            get {
+                return ((int)(this["GetDataTime"]));
+            }
+            set {
+                this["GetDataTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsGetError {
+            get {
+                return ((bool)(this["IsGetError"]));
+            }
+            set {
+                this["IsGetError"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int GetErrorTime {
+            get {
+                return ((int)(this["GetErrorTime"]));
+            }
+            set {
+                this["GetErrorTime"] = value;
+            }
+        }
     }
 }

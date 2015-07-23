@@ -53,7 +53,7 @@ namespace KantVinoV2
         public static int timeSaveCache = 10; //*
         public static int timeSaveBacup = 1000000;
         public static string dataBasePath = ""; //*
-        public static string bacupPath = "";
+        public static string backupPath = "";
 
         //Параметры порта, требуется перезагрузка настроек PortOpen()
         public static string port = "COM4"; //*

@@ -8,13 +8,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZedGraph;
 
 namespace КантВиноНастройка
 {
+   
     public partial class ConfigForm : Form
     {
         private ComPort _comPort = new ComPort();
         private int _devaiceAddr = 0;
+        private int _lastCommandCode = 0;
+        private int _dataTransferCount = 0;
+        private int _dataTransferBad = 0;
+
+        private int[] _errors = new int[4]{0,0,0,0};
 
         public ConfigForm()
         {
@@ -34,8 +41,20 @@ namespace КантВиноНастройка
             cmbBaudRate.SelectedItem = Properties.Settings.Default.BaudRate;
 
             txtDeviceAddr.Text = Properties.Settings.Default.DeviceAddr.ToString();
+            txtNewAddr.Text = txtDeviceAddr.Text;
 
-            chbIsGetData.Checked = true;
+            chbIsGetData.Checked = Properties.Settings.Default.IsGetData;
+            chbIsGetError.Checked = Properties.Settings.Default.IsGetError;
+
+            txtGetDataTime.Text = Properties.Settings.Default.GetDataTime.ToString();
+            txtGetErrorTime.Text = Properties.Settings.Default.GetErrorTime.ToString();
+
+            for (int i = 0; i < 8; i++)
+            {
+                _singleCurves[i] = new SingleCurve();
+            }
+
+            LoadGraphSettings();
         }
 
         private void cmbPort_SelectedIndexChanged(object sender, EventArgs e)
@@ -51,121 +70,99 @@ namespace КантВиноНастройка
 
             _comPort.Open(port, baudRate);
             logAdd(_comPort.IsOpen()
-                ? string.Format("Порт {0} открыт\r\n", port)
-                : string.Format("Не удалось открыть порт\r\n"));
+                ? string.Format("Порт {0} открыт", port)
+                : string.Format("Не удалось открыть порт"));
         }
+
+        private void btnFindAddr_Click(object sender, EventArgs e)
+        {
+            if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen())
+            {
+                byte[] outBuf = new byte[256];
+                outBuf[0] = 0x55;
+                outBuf[1] = 0xCC;
+                outBuf[2] = 0x03;
+                outBuf[3] = 0x41;
+                outBuf[4] = 0x00;
+                _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
+                outBuf[7] = 0x2A;
+                _comPort.Write(outBuf, 8);
+                _lastCommandCode = outBuf[3];
+                if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
+            }
+        }
+
 
         private void txtDeviceAddr_TextChanged(object sender, EventArgs e)
         {
-            if (int.TryParse(txtDeviceAddr.Text, out _devaiceAddr))
+            int temp = 0;
+            if (int.TryParse(txtDeviceAddr.Text, out temp) && temp >= 0 && temp < 256)
             {
+                _devaiceAddr = temp;
+                _dataTransferCount = 0;
+                _dataTransferBad = 0;
                 logAdd(string.Format("Выбрано {0} устройство", _devaiceAddr));
             }
         }
 
-        private const int DEVICE_NOT_FOUND = 3;
-        private const int ERROR_CRC = 1;
-        private const int ERROR0 = 1;
-        private const int ERROR1 = 3;
-
-
-        private void ComPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void txtGetDataTime_TextChanged(object sender, EventArgs e)
         {
-            byte[] inBuf = new byte[256];
-            int rxCount = _comPort.Read(ref inBuf, 10);
-            if (rxCount < 2) return;
-
-
-            string text = "Принято: ";
-            for (int i = 0; i < rxCount; i++)
+            int temp = 0;
+            if (int.TryParse(txtGetDataTime.Text, out temp) && temp >= 20 && temp < 6000 * 60 * 60)
             {
-                text += string.Format("0x{0:X} ", inBuf[i]);
+                timerGetData.Interval = temp;
+                _dataTransferCount = 0;
+                _dataTransferBad = 0;
+                logAdd(string.Format("Интервал опроса = {0}",temp));
             }
-            logAdd(text);
+        }
 
-
-            if (inBuf[1] != _devaiceAddr || (inBuf[2] & 0x7F) != 0x03 || inBuf[3] != 20)
+        private void txtGetErrorTime_TextChanged(object sender, EventArgs e)
+        {
+            int temp = 0;
+            if (int.TryParse(txtGetErrorTime.Text, out temp) && temp >= 20 && temp < 6000 * 60 * 60)
             {
-                return;
+                timerGetError.Interval = temp;
+                _dataTransferCount = 0;
+                _dataTransferBad = 0;
+                logAdd(string.Format("Интервал ошибок = {0}",temp));
             }
+        }
 
-            double temp;
 
-            temp = BitConverter.ToInt16(inBuf, 4);
-            lblT1.Text = string.Format("Температура1 = {0} С", temp/16);
-
-            temp = BitConverter.ToInt16(inBuf, 6);
-            lblT2.Text = string.Format("Температура2 = {0} С", temp/16);
-
-            temp = BitConverter.ToInt32(inBuf, 8);
-            lblD1.Text = string.Format("Давление = {0}", temp);
-
-            temp = BitConverter.ToInt32(inBuf, 12);
-            lblD2.Text = string.Format("Уровень = {0}", temp);
-
-            if (inBuf[2] == 0x83)
+        private void btnNewAddr_Click(object sender, EventArgs e)
+        {
+            int temp = 0;
+            if (int.TryParse(txtNewAddr.Text, out temp) && temp >= 0 && temp < 256)
             {
-                int errCode = inBuf[16];
-                switch (errCode & 3)
+
+                if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen())
                 {
-                    case DEVICE_NOT_FOUND:
-                        lblT1.Text = string.Format("Температура1 = Датчик не найден");
-                        break;
-                    case ERROR_CRC:
-                        lblT1.Text = string.Format("Температура1 = Ошибка CRC");
-                        break;
-                    default:
-                        
-                        break;
-                }
-                errCode >>= 2;
-                switch (errCode & 3)
-                {
-                    case DEVICE_NOT_FOUND:
-                        lblT2.Text = string.Format("Температура2 = Датчик не найден");
-                        break;
-                    case ERROR_CRC:
-                        lblT2.Text = string.Format("Температура2 = Ошибка CRC");
-                        break;
-                    default:
-                       
-                        break;
+                    byte[] outBuf = new byte[256];
+                    outBuf[0] = 0x55;
+                    outBuf[1] = (byte)_devaiceAddr;
+                    outBuf[2] = 0x10;
+                    outBuf[3] = 0x41;
+                    outBuf[4] = (byte)temp;
+                    _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
+                    outBuf[7] = 0x2A;
+                    _comPort.Write(outBuf, 8);
+
+                    txtDeviceAddr.Text = temp.ToString();
+                    _devaiceAddr = temp;
+
+                    _lastCommandCode = outBuf[3];
+                    if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
                 }
 
-                errCode >>= 2;
-                switch (errCode & 3)
-                {
-                    case ERROR0:
-                        lblD1.Text = string.Format("Давление = Ошибка 0");
-                        break;
-                    case ERROR1:
-                        lblD1.Text = string.Format("Давление = Ошибка 1");
-                        break;
-                    default:
-                       
-                        break;
-                }
-
-                errCode >>= 2;
-                switch (errCode & 3)
-                {
-                    case ERROR0:
-                        lblD2.Text = string.Format("Уровень = Ошибка 0");
-                        break;
-                    case ERROR1:
-                        lblD2.Text = string.Format("Уровень = Ошибка 1");
-                        break;
-                    default:
-                        
-                        break;
-                }
             }
 
         }
 
-        private void timer900ms_Tick(object sender, EventArgs e)
+
+        private void timerGetData_Tick(object sender, EventArgs e)
         {
-            if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen() &&chbIsGetData.Checked)
+            if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen() && chbIsGetData.Checked)
             {
                 byte[] outBuf = new byte[256];
                 outBuf[0] = 0x55;
@@ -173,86 +170,263 @@ namespace КантВиноНастройка
                 outBuf[2] = 0x03;
                 outBuf[3] = 0x44;
                 outBuf[4] = 0x00;
-                CRC16_all(ref outBuf, 1, 5);
-                CRC16_all(ref outBuf, 1, 7);
+                _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
                 _comPort.Write(outBuf, 8);
-               
+                _dataTransferCount++;
             }
         }
 
+        private void timerGetError_Tick(object sender, EventArgs e)
+        {
+            if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen() && chbIsGetError.Checked)
+            {
+                byte[] outBuf = new byte[256];
+                outBuf[0] = 0x55;
+                outBuf[1] = (byte)_devaiceAddr;
+                outBuf[2] = 0x03;
+                outBuf[3] = 0x45;
+                outBuf[4] = 0x00;
+                _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
+                outBuf[7] = 0x2A;
+                _comPort.Write(outBuf, 8);
+                _dataTransferCount++;
+
+                for (int i = 0; i < 2; i++)
+                {
+                    _errors[i] = 0;
+                }
+            }
+        }
+
+
+
+        private const int DEVICE_NOT_FOUND = 3;
+        private const int ERROR_CRC = 1;
+        private const int ERROR0 = 1;
+        private const int ERROR1 = 3;
+
+
+        private void AddVal(UnitData val)
+        {
+            int errCode = val.ErrorCode;
+            lblT1.Text = string.Format("Т1 = {0}", val.Term1);
+            lblT2.Text = string.Format("Т2 = {0}", val.Term2);
+            lblD1.Text = string.Format("Дав = {0}", val.Pressure);
+            lblD2.Text = string.Format("Ур = {0}", val.Level);
+            lblTransferError.Text = string.Format("Пакетов потеряно = {0}", _dataTransferCount);
+            lblBadPacket.Text = string.Format("Пакетов битых = {0}", _dataTransferBad);
+
+            DateTime time = DateTime.Now;
+
+            if ((errCode & 3) == 0)
+            {
+                _singleCurves[0].UpdateData(val.Term1, time);
+            }
+
+            if ((errCode & (3<<2)) == 0)
+            {
+                _singleCurves[1].UpdateData(val.Term2, time);
+            }
+
+            if ((errCode & (3<<4)) == 0)
+            {
+                _singleCurves[2].UpdateData(val.Pressure/10, time);
+            }
+
+            if ((errCode & (3 << 6)) == 0)
+            {
+                _singleCurves[3].UpdateData(val.Level/10, time);
+            }
+
+            UpdateAsis(time.AddSeconds(-60), time);
+
+            switch (errCode & 3)
+            {
+                case DEVICE_NOT_FOUND:
+                    lblT1.Text = string.Format("Т1 = Датчик не найден");
+                    break;
+                case ERROR_CRC:
+                    lblT1.Text = string.Format("Т1 = Ошибка CRC");
+                    break;
+                default:
+
+                    break;
+            }
+            errCode >>= 2;
+            switch (errCode & 3)
+            {
+                case DEVICE_NOT_FOUND:
+                    lblT2.Text = string.Format("Т2 = Датчик не найден");
+                    break;
+                case ERROR_CRC:
+                    lblT2.Text = string.Format("Т2 = Ошибка CRC");
+                    break;
+                default:
+
+                    break;
+            }
+
+            errCode >>= 2;
+            switch (errCode & 3)
+            {
+                case ERROR0:
+                    lblD1.Text = string.Format("Дав = Ошибка 0");
+                    break;
+                case ERROR1:
+                    lblD1.Text = string.Format("Дав = Ошибка 1");
+                    break;
+                default:
+
+                    break;
+            }
+
+            errCode >>= 2;
+            switch (errCode & 3)
+            {
+                case ERROR0:
+                    lblD2.Text = string.Format("Ур = Ошибка 0");
+                    break;
+                case ERROR1:
+                    lblD2.Text = string.Format("Ур = Ошибка 1");
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
+
+
+        private void ComPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            byte[] inBuf = new byte[256];
+            int rxCount = _comPort.Read(ref inBuf, 10); //Время чтения
+            int rxIndex = 0;
+            bool isBad = true;
+
+            if (rxCount < 3) return; //Ошибка чтения
+
+            if (chbIsVisiblePacket.Checked)
+            {
+                string tmpstr = "";
+                for (rxIndex = 0; rxIndex < rxCount; rxIndex++)
+                {
+                    tmpstr += string.Format("{0:X2} ", inBuf[rxIndex]);
+                }
+                logAdd("[ " + tmpstr + " ]");
+            }
+
+
+            if (rxCount >= 6) //Данных хватает, начинаем разбор посылки
+            {
+                for (rxIndex = 0; rxIndex < rxCount - 5; rxIndex++)
+                {
+                    if ((inBuf[rxIndex] == _devaiceAddr || _lastCommandCode == 0x41) && //Адрес
+                        (inBuf[rxIndex + 1] == 0x03 || inBuf[rxIndex + 1] == 0x10 //Код команды
+                         || inBuf[rxIndex + 1] == 0x83) &&
+                        (inBuf[rxIndex + 2] == 18 || inBuf[rxIndex + 2] == 19
+                        || inBuf[rxIndex + 2] == 6)) //Количество байт 
+                    {
+                        if (_comPort.CRC16_Check(ref inBuf, rxIndex, rxIndex + inBuf[rxIndex + 2]) == 0) //CRC OK
+                        {
+                           
+                            switch (inBuf[rxIndex + 2])
+                            {
+                                case 6:
+                                    switch (_lastCommandCode)
+                                    {
+                                        case 0x41:  //Get Addr
+                                            logAdd("Адрес получен");
+                                            _devaiceAddr = inBuf[rxIndex + 3];
+                                            isBad = false;
+                                            break;
+                                        case (0x41|0x80): //Set Addr
+                                            logAdd("Адрес изменен");
+                                            isBad = false;
+                                            break;
+                                        case (0x4F|0x80): //Set Out
+                                            logAdd("Состояние выходов");
+                                            isBad = false;
+                                            break;
+                                    }
+                                    _lastCommandCode = 0;
+                                    break;
+
+                                case 18: //Данные
+                                    _dataTransferCount--;
+                                    isBad = false;
+                                     
+
+                            // Парсим данные
+                                    double temp;
+                            UnitData curVal = new UnitData();
+
+                            rxIndex += 3;
+                            temp = BitConverter.ToInt16(inBuf, rxIndex);
+                            curVal.Term1 = temp / 16;
+
+                            temp = BitConverter.ToInt16(inBuf, rxIndex + 2);
+                            curVal.Term2 = temp / 16;
+
+                            temp = BitConverter.ToInt32(inBuf, rxIndex + 4);
+                                    curVal.Pressure = (int) (temp/128.0) / 4.0;
+                                
+                            temp = BitConverter.ToInt32(inBuf, rxIndex + 8);
+                            curVal.Level = (int)(temp / 128.0) / 4.0;
+                               
+                            rxIndex += 12;
+                            curVal.ErrorCode = inBuf[rxIndex];
+                            rxIndex -= 15;
+
+                                    AddVal(curVal);
+
+
+                                    break;
+                                    
+                                case 19: //Ошибки
+
+                                    _dataTransferCount--;
+                                    isBad = false;
+
+                                    rxIndex += 3;
+                                    int upTime = BitConverter.ToInt32(inBuf, rxIndex);
+
+                                    this.Text = string.Format("Настройка (UpTime = {0}:{1:00}:{2:00}.{3})", upTime / 60 / 60 / 10, (upTime / 60 / 10) % 60, (upTime / 10) % 60, upTime%10);
+                                    rxIndex += 4;
+                                    DateTime time = DateTime.Now;
+                                    for (int i = 0; i < 4; i++)
+                                    {
+                                        _errors[i] += inBuf[rxIndex + i];
+                                        _errors[i] += inBuf[rxIndex + i + 4];
+                                        _singleCurves[i+4].UpdateData(_errors[i], time);
+                                    }
+
+
+
+                                     rxIndex -= 7;
+                                    break;
+                                    
+                            }
+
+                            rxIndex += inBuf[rxIndex + 2];
+                        }
+                    }
+                }
+            }
+
+            if (isBad) _dataTransferBad++;
+        }
 
         private void logAdd(string text)
         {
             txtLog.AppendText(
-                string.Format("{1}:{2}=> {0}\r\n", text,
+                string.Format("{1:00}:{2:00}=> {0}\r\n", text,
                 DateTime.Now.Minute, DateTime.Now.Second));
         }
 
-        private int CRC16_all(ref byte[] p, int i, int n)
-        {
-            int j;
-            int crc_hi;
-            int crc_lo;
-            crc_hi = 0xFF; // high byte of CRC initialized  
-            crc_lo = 0xFF; // low byte of CRC initialized
-
-            for (; i < n; i++)
-            {
-                j = crc_hi ^ p[i]; // will index into CRC lookup table
-                crc_hi = crc_lo ^ auchCRCHi[j]; // calculate the CRC
-                crc_lo = auchCRCLo[j];
-            }
-            p[i++] = (byte) crc_hi;
-            p[i++] = (byte) crc_lo;
-
-            return (crc_hi << 8) | crc_lo;
-        }
-
-        private int[] auchCRCHi = new int[256]
-        {
-            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
-            0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
-            0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01,
-            0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
-            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81,
-            0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
-            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01,
-            0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40,
-            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
-            0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
-            0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01,
-            0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
-            0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
-            0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0,
-            0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01,
-            0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
-            0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,
-            0x40
-        };
-
-        private int[] auchCRCLo = new int[256]
-        {
-            0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06, 0x07, 0xC7, 0x05, 0xC5, 0xC4,
-            0x04, 0xCC, 0x0C, 0x0D, 0xCD, 0x0F, 0xCF, 0xCE, 0x0E, 0x0A, 0xCA, 0xCB, 0x0B, 0xC9, 0x09,
-            0x08, 0xC8, 0xD8, 0x18, 0x19, 0xD9, 0x1B, 0xDB, 0xDA, 0x1A, 0x1E, 0xDE, 0xDF, 0x1F, 0xDD,
-            0x1D, 0x1C, 0xDC, 0x14, 0xD4, 0xD5, 0x15, 0xD7, 0x17, 0x16, 0xD6, 0xD2, 0x12, 0x13, 0xD3,
-            0x11, 0xD1, 0xD0, 0x10, 0xF0, 0x30, 0x31, 0xF1, 0x33, 0xF3, 0xF2, 0x32, 0x36, 0xF6, 0xF7,
-            0x37, 0xF5, 0x35, 0x34, 0xF4, 0x3C, 0xFC, 0xFD, 0x3D, 0xFF, 0x3F, 0x3E, 0xFE, 0xFA, 0x3A,
-            0x3B, 0xFB, 0x39, 0xF9, 0xF8, 0x38, 0x28, 0xE8, 0xE9, 0x29, 0xEB, 0x2B, 0x2A, 0xEA, 0xEE,
-            0x2E, 0x2F, 0xEF, 0x2D, 0xED, 0xEC, 0x2C, 0xE4, 0x24, 0x25, 0xE5, 0x27, 0xE7, 0xE6, 0x26,
-            0x22, 0xE2, 0xE3, 0x23, 0xE1, 0x21, 0x20, 0xE0, 0xA0, 0x60, 0x61, 0xA1, 0x63, 0xA3, 0xA2,
-            0x62, 0x66, 0xA6, 0xA7, 0x67, 0xA5, 0x65, 0x64, 0xA4, 0x6C, 0xAC, 0xAD, 0x6D, 0xAF, 0x6F,
-            0x6E, 0xAE, 0xAA, 0x6A, 0x6B, 0xAB, 0x69, 0xA9, 0xA8, 0x68, 0x78, 0xB8, 0xB9, 0x79, 0xBB,
-            0x7B, 0x7A, 0xBA, 0xBE, 0x7E, 0x7F, 0xBF, 0x7D, 0xBD, 0xBC, 0x7C, 0xB4, 0x74, 0x75, 0xB5,
-            0x77, 0xB7, 0xB6, 0x76, 0x72, 0xB2, 0xB3, 0x73, 0xB1, 0x71, 0x70, 0xB0, 0x50, 0x90, 0x91,
-            0x51, 0x93, 0x53, 0x52, 0x92, 0x96, 0x56, 0x57, 0x97, 0x55, 0x95, 0x94, 0x54, 0x9C, 0x5C,
-            0x5D, 0x9D, 0x5F, 0x9F, 0x9E, 0x5E, 0x5A, 0x9A, 0x9B, 0x5B, 0x99, 0x59, 0x58, 0x98, 0x88,
-            0x48, 0x49, 0x89, 0x4B, 0x8B, 0x8A, 0x4A, 0x4E, 0x8E, 0x8F, 0x4F, 0x8D, 0x4D, 0x4C, 0x8C,
-            0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83, 0x41, 0x81, 0x80,
-            0x40
-        };
-
+       
+       
         private void ConfigForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_comPort.IsOpen())
@@ -265,35 +439,228 @@ namespace КантВиноНастройка
                 Properties.Settings.Default.DeviceAddr = _devaiceAddr;
             }
 
+            Properties.Settings.Default.IsGetData = chbIsGetData.Checked;
+            Properties.Settings.Default.IsGetError = chbIsGetError.Checked;
+            Properties.Settings.Default.GetDataTime = timerGetData.Interval;
+            Properties.Settings.Default.GetErrorTime = timerGetError.Interval;
+
             Properties.Settings.Default.Save();
         }
 
-        private void btnNewAddr_Click(object sender, EventArgs e)
+
+        private void LoadGraphSettings()
         {
-            int temp=0;
-            if (int.TryParse(txtNewAddr.Text, out temp) && temp>=0 && temp <256)
-            {
+            zGraph.EditButtons = MouseButtons.None;
+            zGraph.LinkButtons = MouseButtons.None;
+            zGraph.SelectButtons = MouseButtons.None;
+            //Кнопка таскания
+            // zGraph.PanButtons = MouseButtons.None;
+            zGraph.PanModifierKeys = Keys.None;
+            zGraph.PanButtons2 = MouseButtons.None;
+            //Кнопка зума выделенного прямоугольника
+            zGraph.ZoomButtons = MouseButtons.None;
+            zGraph.ZoomButtons2 = MouseButtons.None;
 
-                if (_devaiceAddr >= 0 && _devaiceAddr < 256 && _comPort.IsOpen())
-                {
-                    byte[] outBuf = new byte[256];
-                    outBuf[0] = 0x55;
-                    outBuf[1] = (byte)_devaiceAddr;
-                    outBuf[2] = 0x10;
-                    outBuf[3] = 0x41;
-                    outBuf[4] = (byte)temp;
-                    CRC16_all(ref outBuf, 1, 5);
-                    outBuf[7] = 0x2A;
-                    _comPort.Write(outBuf, 8);
+            GraphPane pane = zGraph.GraphPane;
+
+            // Отключаем заголовок
+            pane.Title.IsVisible = false;
+
+            // Отключаем имя осям
+            pane.XAxis.Title.IsVisible = false;
+            pane.YAxis.Title.IsVisible = false;
+
+            // Не рисовать линию нуля
+            pane.YAxis.MajorGrid.IsZeroLine = false;
+
+            // С помощью этого свойства указываем, что шрифты не надо масштабировать
+            // при изменении размера компонента.
+            pane.IsFontsScaled = false;
+
+            // Установим размеры шрифтов для меток вдоль осей
+            pane.XAxis.Scale.FontSpec.Size = 12;
+            pane.YAxis.Scale.FontSpec.Size = 12;
+
+            // Установим размеры шрифтов для подписей по осям
+            pane.XAxis.Title.FontSpec.Size = 10;
+            pane.YAxis.Title.FontSpec.Size = 10;
+
+            // Установим размеры шрифта для легенды
+            pane.Legend.FontSpec.Size = 12;
+
+            // Установим размеры шрифта для заголовка
+            pane.Title.FontSpec.Size = 12;
 
 
-                    txtDeviceAddr.Text = temp.ToString();
-                    _devaiceAddr = temp;
-                }
-                
-            }
+            // Для оси X установим календарный тип
+            pane.XAxis.Type = AxisType.Date;
 
+            // Установим значение параметра IsBoundedRanges как true.
+            // Это означает, что при автоматическом подборе масштаба 
+            // нужно учитывать только видимый интервал графика
+            pane.IsBoundedRanges = true;
+
+            // Очистим список кривых на тот случай, если до этого сигналы уже были нарисованы
+            pane.CurveList.Clear();
+
+
+            // Включаем отображение сетки напротив крупных рисок по оси X
+            pane.XAxis.MajorGrid.IsVisible = true;
+
+            // Задаем вид пунктирной линии для крупных рисок по оси X:
+            // Длина штрихов равна 10 пикселям, ... 
+            pane.XAxis.MajorGrid.DashOn = 10;
+
+            // затем 5 пикселей - пропуск
+            pane.XAxis.MajorGrid.DashOff = 5;
+
+
+            // Включаем отображение сетки напротив крупных рисок по оси Y
+            pane.YAxis.MajorGrid.IsVisible = true;
+
+            // Аналогично задаем вид пунктирной линии для крупных рисок по оси Y
+            pane.YAxis.MajorGrid.DashOn = 10;
+            pane.YAxis.MajorGrid.DashOff = 5;
+
+
+            // Включаем отображение сетки напротив мелких рисок по оси X
+            pane.YAxis.MinorGrid.IsVisible = true;
+
+            // Задаем вид пунктирной линии для крупных рисок по оси Y: 
+            // Длина штрихов равна одному пикселю, ... 
+            pane.YAxis.MinorGrid.DashOn = 1;
+
+            // затем 2 пикселя - пропуск
+            pane.YAxis.MinorGrid.DashOff = 2;
+
+            // Включаем отображение сетки напротив мелких рисок по оси Y
+            pane.XAxis.MinorGrid.IsVisible = true;
+
+            // Аналогично задаем вид пунктирной линии для крупных рисок по оси Y
+            pane.XAxis.MinorGrid.DashOn = 1;
+            pane.XAxis.MinorGrid.DashOff = 2;
+
+            
+
+            // Свойства IsSynchronizeXAxes и IsSynchronizeYAxes указывают, что
+            // оси на графиках должны перемещаться и масштабироваться одновременно.
+            zGraph.IsSynchronizeXAxes = true;
+            //zGraph.IsSynchronizeYAxes = true;
+
+            // Отключаем масштабирование по вертикали
+            zGraph.IsEnableVZoom = false;
+
+
+            int i = 0;
+           
+
+            i = 0;
+            _singleCurves[i].AddCurve(pane,"T1", "C", Color.DarkGreen,SymbolType.Plus, 500);
+            i = 1;
+            _singleCurves[i].AddCurve(pane, "T2", "C", Color.ForestGreen, SymbolType.Star, 500);
+            i = 2;
+            _singleCurves[i].AddCurve(pane, "Дав", "P", Color.DarkBlue, SymbolType.Plus, 500);
+            i = 3;
+            _singleCurves[i].AddCurve(pane, "Ур", "P", Color.MediumBlue, SymbolType.Star, 500);
+
+            i = 4;
+            _singleCurves[i].AddCurve(pane, "Not found", "", Color.DarkMagenta, SymbolType.None, 500);
+            i = 5;
+            _singleCurves[i].AddCurve(pane, "Err CrC", "", Color.Red, SymbolType.None, 500);
+            i = 6;
+            _singleCurves[i].AddCurve(pane, "Not convert", "", Color.DarkRed, SymbolType.None, 500);
+            i = 7;
+            _singleCurves[i].AddCurve(pane, "Config Err", "", Color.Black, SymbolType.None, 500);
+        }
+
+        private void UpdateAsis(DateTime beginTime, DateTime endTime)
+        {
+           
+            
+                //Устанавливаем интересующий нас интервал по оси Y
+                zGraph.GraphPane.YAxis.Scale.Min = 0;
+                zGraph.GraphPane.YAxis.Scale.Max = 100;
+                //По оси Y установим автоматический подбор масштаба
+                zGraph.GraphPane.YAxis.Scale.MinAuto = false;
+                zGraph.GraphPane.YAxis.Scale.MaxAuto = true;
+                //Устанавливаем время по X
+                zGraph.GraphPane.XAxis.Scale.Min = (XDate)beginTime;
+                zGraph.GraphPane.XAxis.Scale.Max = (XDate)endTime;
+            
+
+            zGraph.AxisChange();
+            zGraph.Invalidate();
+        }
+
+        private SingleCurve[] _singleCurves = new SingleCurve[8];
+
+        private void chbIsGetData_CheckedChanged(object sender, EventArgs e)
+        {
+            _dataTransferCount = 0;
+        }
+
+
+    }
+
+
+    public class SingleCurve
+    {
+
+        private RollingPointPairList _dataPointList = null;
+        private LineItem _myCurve = null; 
+        public void AddCurve(GraphPane pane, string name, string measure, Color color, SymbolType sType, int capacity)
+        {
+            _dataPointList = new RollingPointPairList(capacity);
+
+            // Добавим кривую пока еще без каких-либо точек
+            _myCurve = pane.AddCurve(string.Format("{0} ({1})", name, measure), _dataPointList, color, sType);
+        }
+
+        //Добавление даннх
+        public void UpdateData(double data, DateTime time)
+        {
+            if (_dataPointList == null) return;
+            _dataPointList.Add((XDate)time, data);
         }
 
     }
+
+
+
+    public class UnitData
+    {
+
+        public int Id { get; set; }
+
+
+        public DateTime Time { get; set; }
+
+        public int Index { get; set; }
+
+        public double Term1 { get; set; }
+        public double Term2 { get; set; }
+        public double Pressure { get; set; }
+        public double Level { get; set; }
+
+
+        public int ErrorCode { get; set; }
+
+        public double GetValue(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return Term1;
+                case 1:
+                    return Term2;
+                case 2:
+                    return Pressure;
+                case 3:
+                    return Level;
+                default:
+                    return double.NaN;
+            }
+        }
+    }
+
 }

@@ -133,7 +133,7 @@ namespace KantVinoV2 //end 13_07_2015
                 {
                     if (inBuf[rxIndex] == (_unitsIndex + 1) &&  //Адрес
                         (inBuf[rxIndex + 1] & 0x7F) == 0x03 &&  //Код команды
-                        inBuf[rxIndex + 2] == 20)               //Количество байт
+                        inBuf[rxIndex + 2] == 18)               //Количество байт
                     {
                         if (_comPort.CRC16_Check(ref inBuf, rxIndex, rxIndex + 18) == 0) //CRC OK
                         {
