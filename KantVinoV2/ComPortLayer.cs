@@ -115,7 +115,7 @@ namespace KantVinoV2 //end 13_07_2015
         private void ComPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             byte[] inBuf = new byte[256];
-            int rxCount = _comPort.Read(ref inBuf, 20); //Время чтения
+            int rxCount = _comPort.Read(ref inBuf, 10); //Время чтения
             int rxIndex = 0;
             int errorCode = 0;
 
@@ -127,15 +127,15 @@ namespace KantVinoV2 //end 13_07_2015
              *   0      1    2     3    4  5    6  7  8 9 10 11 12 13 14 15  16       17 18    19 
             */
 
-            if (rxCount >= 18) //Данных хватает, начинаем разбор посылки
+            if (rxCount >= 14) //Данных хватает, начинаем разбор посылки
             {
-                for (rxIndex = 0; rxIndex < rxCount - 17; rxIndex++)
+                for (rxIndex = 0; rxIndex < rxCount - 13; rxIndex++)
                 {
                     if (inBuf[rxIndex] == (_unitsIndex + 1) &&  //Адрес
                         (inBuf[rxIndex + 1] & 0x7F) == 0x03 &&  //Код команды
-                        inBuf[rxIndex + 2] == 18)               //Количество байт
+                        inBuf[rxIndex + 2] == 14)               //Количество байт
                     {
-                        if (_comPort.CRC16_Check(ref inBuf, rxIndex, rxIndex + 18) == 0) //CRC OK
+                        if (_comPort.CRC16_Check(ref inBuf, rxIndex, rxIndex + inBuf[rxIndex + 2]) == 0) //CRC OK
                         {
                             rxIndex += 3;
 
@@ -147,15 +147,15 @@ namespace KantVinoV2 //end 13_07_2015
                             temp = BitConverter.ToInt16(inBuf, rxIndex + 2);
                             _unitsData[_unitsIndex].Term2 = temp / 16;
 
-                            temp = BitConverter.ToInt32(inBuf, rxIndex + 4);
+                            temp = BitConverter.ToUInt16(inBuf, rxIndex + 4);
                             _unitsData[_unitsIndex].Pressure =
                                 temp * ConfigLayer.unitsConfig[_unitsIndex].coeffPressure;
 
-                            temp = BitConverter.ToInt32(inBuf, rxIndex + 8);
+                            temp = BitConverter.ToUInt16(inBuf, rxIndex + 6);
                             _unitsData[_unitsIndex].Level =
                                 temp * ConfigLayer.unitsConfig[_unitsIndex].coeffLevel;
 
-                            rxIndex += 12;
+                            rxIndex += 8;
 
                             errorCode = (ushort)inBuf[rxIndex];
 

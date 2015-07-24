@@ -43,6 +43,9 @@
             this.txtDeviceAddr = new System.Windows.Forms.TextBox();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lblBadPacket = new System.Windows.Forms.Label();
+            this.chbIsVisiblePacket = new System.Windows.Forms.CheckBox();
+            this.lblTransferError = new System.Windows.Forms.Label();
             this.timerGetData = new System.Windows.Forms.Timer(this.components);
             this.lblT1 = new System.Windows.Forms.Label();
             this.lblT2 = new System.Windows.Forms.Label();
@@ -64,15 +67,18 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.timerGetError = new System.Windows.Forms.Timer(this.components);
-            this.lblTransferError = new System.Windows.Forms.Label();
-            this.chbIsVisiblePacket = new System.Windows.Forms.CheckBox();
-            this.lblBadPacket = new System.Windows.Forms.Label();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtCoefLevel = new System.Windows.Forms.TextBox();
+            this.txtCoefPressure = new System.Windows.Forms.TextBox();
+            this.timer5ms = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmbPort
@@ -209,6 +215,34 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Лог";
             // 
+            // lblBadPacket
+            // 
+            this.lblBadPacket.AutoSize = true;
+            this.lblBadPacket.Location = new System.Drawing.Point(6, 33);
+            this.lblBadPacket.Name = "lblBadPacket";
+            this.lblBadPacket.Size = new System.Drawing.Size(101, 13);
+            this.lblBadPacket.TabIndex = 7;
+            this.lblBadPacket.Text = "Пакетов битых = 0";
+            // 
+            // chbIsVisiblePacket
+            // 
+            this.chbIsVisiblePacket.AutoSize = true;
+            this.chbIsVisiblePacket.Location = new System.Drawing.Point(6, 49);
+            this.chbIsVisiblePacket.Name = "chbIsVisiblePacket";
+            this.chbIsVisiblePacket.Size = new System.Drawing.Size(181, 17);
+            this.chbIsVisiblePacket.TabIndex = 6;
+            this.chbIsVisiblePacket.Text = "Показывать принятые пакеты";
+            this.chbIsVisiblePacket.UseVisualStyleBackColor = true;
+            // 
+            // lblTransferError
+            // 
+            this.lblTransferError.AutoSize = true;
+            this.lblTransferError.Location = new System.Drawing.Point(6, 16);
+            this.lblTransferError.Name = "lblTransferError";
+            this.lblTransferError.Size = new System.Drawing.Size(118, 13);
+            this.lblTransferError.TabIndex = 5;
+            this.lblTransferError.Text = "Пакетов потеряно = 0";
+            // 
             // timerGetData
             // 
             this.timerGetData.Enabled = true;
@@ -219,7 +253,7 @@
             // 
             this.lblT1.AutoSize = true;
             this.lblT1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblT1.Location = new System.Drawing.Point(914, 12);
+            this.lblT1.Location = new System.Drawing.Point(866, 12);
             this.lblT1.Name = "lblT1";
             this.lblT1.Size = new System.Drawing.Size(53, 20);
             this.lblT1.TabIndex = 6;
@@ -229,7 +263,7 @@
             // 
             this.lblT2.AutoSize = true;
             this.lblT2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblT2.Location = new System.Drawing.Point(914, 32);
+            this.lblT2.Location = new System.Drawing.Point(866, 32);
             this.lblT2.Name = "lblT2";
             this.lblT2.Size = new System.Drawing.Size(53, 20);
             this.lblT2.TabIndex = 7;
@@ -239,7 +273,7 @@
             // 
             this.lblD1.AutoSize = true;
             this.lblD1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblD1.Location = new System.Drawing.Point(914, 52);
+            this.lblD1.Location = new System.Drawing.Point(866, 52);
             this.lblD1.Name = "lblD1";
             this.lblD1.Size = new System.Drawing.Size(53, 20);
             this.lblD1.TabIndex = 8;
@@ -249,7 +283,7 @@
             // 
             this.lblD2.AutoSize = true;
             this.lblD2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblD2.Location = new System.Drawing.Point(914, 72);
+            this.lblD2.Location = new System.Drawing.Point(866, 72);
             this.lblD2.Name = "lblD2";
             this.lblD2.Size = new System.Drawing.Size(53, 20);
             this.lblD2.TabIndex = 9;
@@ -340,7 +374,7 @@
             this.zGraph.ScrollMinX = 0D;
             this.zGraph.ScrollMinY = 0D;
             this.zGraph.ScrollMinY2 = 0D;
-            this.zGraph.Size = new System.Drawing.Size(821, 378);
+            this.zGraph.Size = new System.Drawing.Size(796, 378);
             this.zGraph.TabIndex = 13;
             // 
             // groupBox5
@@ -423,48 +457,62 @@
             this.timerGetError.Interval = 1000;
             this.timerGetError.Tick += new System.EventHandler(this.timerGetError_Tick);
             // 
-            // lblTransferError
-            // 
-            this.lblTransferError.AutoSize = true;
-            this.lblTransferError.Location = new System.Drawing.Point(6, 16);
-            this.lblTransferError.Name = "lblTransferError";
-            this.lblTransferError.Size = new System.Drawing.Size(118, 13);
-            this.lblTransferError.TabIndex = 5;
-            this.lblTransferError.Text = "Пакетов потеряно = 0";
-            // 
-            // chbIsVisiblePacket
-            // 
-            this.chbIsVisiblePacket.AutoSize = true;
-            this.chbIsVisiblePacket.Location = new System.Drawing.Point(6, 49);
-            this.chbIsVisiblePacket.Name = "chbIsVisiblePacket";
-            this.chbIsVisiblePacket.Size = new System.Drawing.Size(181, 17);
-            this.chbIsVisiblePacket.TabIndex = 6;
-            this.chbIsVisiblePacket.Text = "Показывать принятые пакеты";
-            this.chbIsVisiblePacket.UseVisualStyleBackColor = true;
-            // 
-            // lblBadPacket
-            // 
-            this.lblBadPacket.AutoSize = true;
-            this.lblBadPacket.Location = new System.Drawing.Point(6, 33);
-            this.lblBadPacket.Name = "lblBadPacket";
-            this.lblBadPacket.Size = new System.Drawing.Size(101, 13);
-            this.lblBadPacket.TabIndex = 7;
-            this.lblBadPacket.Text = "Пакетов битых = 0";
-            // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.label7);
+            this.groupBox6.Controls.Add(this.label6);
+            this.groupBox6.Controls.Add(this.txtCoefLevel);
+            this.groupBox6.Controls.Add(this.txtCoefPressure);
             this.groupBox6.Location = new System.Drawing.Point(664, 12);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(244, 77);
+            this.groupBox6.Size = new System.Drawing.Size(187, 77);
             this.groupBox6.TabIndex = 15;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Коэффициенты";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(15, 49);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(51, 13);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Уровень";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(15, 22);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(58, 13);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Давление";
+            // 
+            // txtCoefLevel
+            // 
+            this.txtCoefLevel.Location = new System.Drawing.Point(79, 46);
+            this.txtCoefLevel.Name = "txtCoefLevel";
+            this.txtCoefLevel.Size = new System.Drawing.Size(100, 20);
+            this.txtCoefLevel.TabIndex = 1;
+            // 
+            // txtCoefPressure
+            // 
+            this.txtCoefPressure.Location = new System.Drawing.Point(79, 19);
+            this.txtCoefPressure.Name = "txtCoefPressure";
+            this.txtCoefPressure.Size = new System.Drawing.Size(100, 20);
+            this.txtCoefPressure.TabIndex = 0;
+            // 
+            // timer5ms
+            // 
+            this.timer5ms.Enabled = true;
+            this.timer5ms.Interval = 5;
+            this.timer5ms.Tick += new System.EventHandler(this.timer5ms_Tick);
             // 
             // ConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1069, 487);
+            this.ClientSize = new System.Drawing.Size(1044, 487);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.zGraph);
@@ -491,6 +539,8 @@
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -536,6 +586,11 @@
         private System.Windows.Forms.CheckBox chbIsVisiblePacket;
         private System.Windows.Forms.Label lblBadPacket;
         private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtCoefLevel;
+        private System.Windows.Forms.TextBox txtCoefPressure;
+        private System.Windows.Forms.Timer timer5ms;
     }
 }
 

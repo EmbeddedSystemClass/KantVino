@@ -106,5 +106,29 @@ namespace КантВиноНастройка.Properties {
                 this["GetErrorTime"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.0001")]
+        public double CoefPressure {
+            get {
+                return ((double)(this["CoefPressure"]));
+            }
+            set {
+                this["CoefPressure"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.0001")]
+        public double CoefLevel {
+            get {
+                return ((double)(this["CoefLevel"]));
+            }
+            set {
+                this["CoefLevel"] = value;
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -20,12 +21,60 @@ namespace КантВиноНастройка
         private int _lastCommandCode = 0;
         private int _dataTransferCount = 0;
         private int _dataTransferBad = 0;
+        private List<PutListClass> _putList = new List<PutListClass>();
+        private int _putCount = 0;
+        private class PutListClass
+        {
+            public byte[] outBuf;
+            public int count;
+            public bool isLast = false;
+            public bool isAddr = false;
+        }
+            
 
         private int[] _errors = new int[4]{0,0,0,0};
 
         public ConfigForm()
         {
             InitializeComponent();
+        }
+
+        void putPort(byte[] outBuf, int count, bool isLast = false, bool isAddr=false)
+        {
+            _putList.Add(new PutListClass()
+            {outBuf = outBuf, count = count, isLast = isLast, isAddr =isAddr});
+            //_comPort.Write()
+        }
+
+        private void timer5ms_Tick(object sender, EventArgs e)
+        {
+            if (_putCount < 3)
+            {
+                _putCount++;
+            }
+            else
+            {
+                if (_putList.Any())
+                {
+                    var putTemp = _putList[0];
+                    _comPort.Write(putTemp.outBuf, putTemp.count);
+
+                    if (putTemp.isAddr)
+                    {
+                        _devaiceAddr = putTemp.outBuf[4];
+                        txtDeviceAddr.Text = _devaiceAddr.ToString();
+                    }
+
+                    if (putTemp.isLast)
+                    {
+                        _lastCommandCode = putTemp.outBuf[3];
+                        if (putTemp.outBuf[2] == 0x10) _lastCommandCode |= 0x80;
+                    }
+
+                    _putCount = 0;
+                    _putList.RemoveAt(0);
+                }
+            }
         }
 
         private void ConfigForm_Load(object sender, EventArgs e)
@@ -48,6 +97,9 @@ namespace КантВиноНастройка
 
             txtGetDataTime.Text = Properties.Settings.Default.GetDataTime.ToString();
             txtGetErrorTime.Text = Properties.Settings.Default.GetErrorTime.ToString();
+
+            txtCoefPressure.Text = Properties.Settings.Default.CoefPressure.ToString();
+            txtCoefLevel.Text = Properties.Settings.Default.CoefLevel.ToString();
 
             for (int i = 0; i < 8; i++)
             {
@@ -86,9 +138,8 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-                _comPort.Write(outBuf, 8);
-                _lastCommandCode = outBuf[3];
-                if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
+
+                putPort(outBuf, 8, true);
             }
         }
 
@@ -146,13 +197,8 @@ namespace КантВиноНастройка
                     outBuf[4] = (byte)temp;
                     _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                     outBuf[7] = 0x2A;
-                    _comPort.Write(outBuf, 8);
 
-                    txtDeviceAddr.Text = temp.ToString();
-                    _devaiceAddr = temp;
-
-                    _lastCommandCode = outBuf[3];
-                    if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
+                    putPort(outBuf,8,true, true);
                 }
 
             }
@@ -172,7 +218,8 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-                _comPort.Write(outBuf, 8);
+
+                putPort(outBuf, 8);
                 _dataTransferCount++;
             }
         }
@@ -189,7 +236,8 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-                _comPort.Write(outBuf, 8);
+
+                putPort(outBuf,8);
                 _dataTransferCount++;
 
                 for (int i = 0; i < 2; i++)
@@ -210,6 +258,15 @@ namespace КантВиноНастройка
         private void AddVal(UnitData val)
         {
             int errCode = val.ErrorCode;
+
+            double cpres, clev;
+            if (double.TryParse(txtCoefPressure.Text, out cpres) &&
+                double.TryParse(txtCoefLevel.Text, out clev))
+            {
+                val.Pressure *= cpres;
+                val.Level *= clev;
+            }
+
             lblT1.Text = string.Format("Т1 = {0}", val.Term1);
             lblT2.Text = string.Format("Т2 = {0}", val.Term2);
             lblD1.Text = string.Format("Дав = {0}", val.Pressure);
@@ -301,7 +358,7 @@ namespace КантВиноНастройка
         private void ComPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             byte[] inBuf = new byte[256];
-            int rxCount = _comPort.Read(ref inBuf, 10); //Время чтения
+            int rxCount = _comPort.Read(ref inBuf, 5); //Время чтения
             int rxIndex = 0;
             bool isBad = true;
 
@@ -325,7 +382,7 @@ namespace КантВиноНастройка
                     if ((inBuf[rxIndex] == _devaiceAddr || _lastCommandCode == 0x41) && //Адрес
                         (inBuf[rxIndex + 1] == 0x03 || inBuf[rxIndex + 1] == 0x10 //Код команды
                          || inBuf[rxIndex + 1] == 0x83) &&
-                        (inBuf[rxIndex + 2] == 18 || inBuf[rxIndex + 2] == 19
+                        (inBuf[rxIndex + 2] == 14 || inBuf[rxIndex + 2] == 19
                         || inBuf[rxIndex + 2] == 6)) //Количество байт 
                     {
                         if (_comPort.CRC16_Check(ref inBuf, rxIndex, rxIndex + inBuf[rxIndex + 2]) == 0) //CRC OK
@@ -337,8 +394,9 @@ namespace КантВиноНастройка
                                     switch (_lastCommandCode)
                                     {
                                         case 0x41:  //Get Addr
-                                            logAdd("Адрес получен");
+                                            logAdd(string.Format("Адрес получен {0}", inBuf[rxIndex + 3]));
                                             _devaiceAddr = inBuf[rxIndex + 3];
+                                            txtDeviceAddr.Text = _devaiceAddr.ToString();
                                             isBad = false;
                                             break;
                                         case (0x41|0x80): //Set Addr
@@ -353,7 +411,7 @@ namespace КантВиноНастройка
                                     _lastCommandCode = 0;
                                     break;
 
-                                case 18: //Данные
+                                case 14: //Данные
                                     _dataTransferCount--;
                                     isBad = false;
                                      
@@ -369,15 +427,15 @@ namespace КантВиноНастройка
                             temp = BitConverter.ToInt16(inBuf, rxIndex + 2);
                             curVal.Term2 = temp / 16;
 
-                            temp = BitConverter.ToInt32(inBuf, rxIndex + 4);
-                                    curVal.Pressure = (int) (temp/128.0) / 4.0;
-                                
-                            temp = BitConverter.ToInt32(inBuf, rxIndex + 8);
-                            curVal.Level = (int)(temp / 128.0) / 4.0;
+                            temp = BitConverter.ToUInt16(inBuf, rxIndex + 4);
+                            curVal.Pressure = temp;
+
+                            temp = BitConverter.ToUInt16(inBuf, rxIndex + 6);
+                            curVal.Level = temp;
                                
-                            rxIndex += 12;
+                            rxIndex += 8;
                             curVal.ErrorCode = inBuf[rxIndex];
-                            rxIndex -= 15;
+                            rxIndex -= 11;
 
                                     AddVal(curVal);
 
@@ -443,6 +501,14 @@ namespace КантВиноНастройка
             Properties.Settings.Default.IsGetError = chbIsGetError.Checked;
             Properties.Settings.Default.GetDataTime = timerGetData.Interval;
             Properties.Settings.Default.GetErrorTime = timerGetError.Interval;
+
+            double cpres, clev;
+            if (double.TryParse(txtCoefPressure.Text, out cpres) &&
+                double.TryParse(txtCoefLevel.Text, out clev))
+            {
+                Properties.Settings.Default.CoefPressure  = cpres;
+                Properties.Settings.Default.CoefLevel = clev;
+            }
 
             Properties.Settings.Default.Save();
         }
@@ -599,6 +665,8 @@ namespace КантВиноНастройка
             _dataTransferCount = 0;
         }
 
+       
+       
 
     }
 
