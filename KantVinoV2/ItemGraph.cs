@@ -165,6 +165,7 @@ namespace KantVinoV2
                 masterPane.Add(pane);
             }
 
+
             // Будем размещать добавленные графики в MasterPane
             using (Graphics g = CreateGraphics())
             {

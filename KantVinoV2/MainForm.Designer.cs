@@ -34,12 +34,13 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.mainStatus = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenu = new System.Windows.Forms.MenuStrip();
+            this.тутДолжноБытьМенюToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.interviewTimer = new System.Windows.Forms.Timer(this.components);
             this.rtbStatus = new System.Windows.Forms.RichTextBox();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.тутДолжноБытьМенюToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnConfig = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTabControl.SuspendLayout();
             this.mainStatus.SuspendLayout();
             this.mainMenu.SuspendLayout();
@@ -88,15 +89,28 @@
             this.mainStatus.TabIndex = 1;
             this.mainStatus.Text = "statusStrip1";
             // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(49, 17);
+            this.toolStripStatusLabel1.Text = "Статус: ";
+            // 
             // mainMenu
             // 
             this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.тутДолжноБытьМенюToolStripMenuItem});
+            this.тутДолжноБытьМенюToolStripMenuItem,
+            this.btnConfig});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
             this.mainMenu.Size = new System.Drawing.Size(673, 24);
             this.mainMenu.TabIndex = 2;
             this.mainMenu.Text = "menuStrip1";
+            // 
+            // тутДолжноБытьМенюToolStripMenuItem
+            // 
+            this.тутДолжноБытьМенюToolStripMenuItem.Name = "тутДолжноБытьМенюToolStripMenuItem";
+            this.тутДолжноБытьМенюToolStripMenuItem.Size = new System.Drawing.Size(148, 20);
+            this.тутДолжноБытьМенюToolStripMenuItem.Text = "Тут должно быть меню";
             // 
             // panel1
             // 
@@ -123,17 +137,12 @@
             this.rtbStatus.TabIndex = 4;
             this.rtbStatus.Text = "Загрузка";
             // 
-            // toolStripStatusLabel1
+            // btnConfig
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(49, 17);
-            this.toolStripStatusLabel1.Text = "Статус: ";
-            // 
-            // тутДолжноБытьМенюToolStripMenuItem
-            // 
-            this.тутДолжноБытьМенюToolStripMenuItem.Name = "тутДолжноБытьМенюToolStripMenuItem";
-            this.тутДолжноБытьМенюToolStripMenuItem.Size = new System.Drawing.Size(148, 20);
-            this.тутДолжноБытьМенюToolStripMenuItem.Text = "Тут должно быть меню";
+            this.btnConfig.Name = "btnConfig";
+            this.btnConfig.Size = new System.Drawing.Size(79, 20);
+            this.btnConfig.Text = "Настройки";
+            this.btnConfig.Click += new System.EventHandler(this.btnConfig_Click);
             // 
             // MainForm
             // 
@@ -173,6 +182,7 @@
         private System.Windows.Forms.RichTextBox rtbStatus;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripMenuItem тутДолжноБытьМенюToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnConfig;
     }
 }
 

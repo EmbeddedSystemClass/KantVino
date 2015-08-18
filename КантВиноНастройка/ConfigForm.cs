@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Drawing.Text;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -21,60 +20,12 @@ namespace КантВиноНастройка
         private int _lastCommandCode = 0;
         private int _dataTransferCount = 0;
         private int _dataTransferBad = 0;
-        private List<PutListClass> _putList = new List<PutListClass>();
-        private int _putCount = 0;
-        private class PutListClass
-        {
-            public byte[] outBuf;
-            public int count;
-            public bool isLast = false;
-            public bool isAddr = false;
-        }
-            
 
         private int[] _errors = new int[4]{0,0,0,0};
 
         public ConfigForm()
         {
             InitializeComponent();
-        }
-
-        void putPort(byte[] outBuf, int count, bool isLast = false, bool isAddr=false)
-        {
-            _putList.Add(new PutListClass()
-            {outBuf = outBuf, count = count, isLast = isLast, isAddr =isAddr});
-            //_comPort.Write()
-        }
-
-        private void timer5ms_Tick(object sender, EventArgs e)
-        {
-            if (_putCount < 3)
-            {
-                _putCount++;
-            }
-            else
-            {
-                if (_putList.Any())
-                {
-                    var putTemp = _putList[0];
-                    _comPort.Write(putTemp.outBuf, putTemp.count);
-
-                    if (putTemp.isAddr)
-                    {
-                        _devaiceAddr = putTemp.outBuf[4];
-                        txtDeviceAddr.Text = _devaiceAddr.ToString();
-                    }
-
-                    if (putTemp.isLast)
-                    {
-                        _lastCommandCode = putTemp.outBuf[3];
-                        if (putTemp.outBuf[2] == 0x10) _lastCommandCode |= 0x80;
-                    }
-
-                    _putCount = 0;
-                    _putList.RemoveAt(0);
-                }
-            }
         }
 
         private void ConfigForm_Load(object sender, EventArgs e)
@@ -138,8 +89,9 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-
-                putPort(outBuf, 8, true);
+                _comPort.Write(outBuf, 8);
+                _lastCommandCode = outBuf[3];
+                if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
             }
         }
 
@@ -197,8 +149,13 @@ namespace КантВиноНастройка
                     outBuf[4] = (byte)temp;
                     _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                     outBuf[7] = 0x2A;
+                    _comPort.Write(outBuf, 8);
 
-                    putPort(outBuf,8,true, true);
+                    txtDeviceAddr.Text = temp.ToString();
+                    _devaiceAddr = temp;
+
+                    _lastCommandCode = outBuf[3];
+                    if (outBuf[2] == 0x10) _lastCommandCode |= 0x80;
                 }
 
             }
@@ -218,8 +175,7 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-
-                putPort(outBuf, 8);
+                _comPort.Write(outBuf, 8);
                 _dataTransferCount++;
             }
         }
@@ -236,8 +192,7 @@ namespace КантВиноНастройка
                 outBuf[4] = 0x00;
                 _comPort.CRC16_Check(ref outBuf, 1, 1 + 4, true);
                 outBuf[7] = 0x2A;
-
-                putPort(outBuf,8);
+                _comPort.Write(outBuf, 8);
                 _dataTransferCount++;
 
                 for (int i = 0; i < 2; i++)
@@ -665,8 +620,6 @@ namespace КантВиноНастройка
             _dataTransferCount = 0;
         }
 
-       
-       
 
     }
 

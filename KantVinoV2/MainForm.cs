@@ -189,6 +189,16 @@ namespace KantVinoV2
             _comPortLayer.InterviewAllSensor();
         }
 
+        private void btnConfig_Click(object sender, EventArgs e)
+        {
+            ConfigForm configForm = new ConfigForm();
+            configForm._comPortLayer = _comPortLayer;
+            if (configForm.ShowDialog() == DialogResult.OK)
+            {
+                
+            }
+        }
+
         
 
 

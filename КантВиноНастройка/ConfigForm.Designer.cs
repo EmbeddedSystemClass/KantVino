@@ -68,11 +68,10 @@
             this.button1 = new System.Windows.Forms.Button();
             this.timerGetError = new System.Windows.Forms.Timer(this.components);
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txtCoefLevel = new System.Windows.Forms.TextBox();
             this.txtCoefPressure = new System.Windows.Forms.TextBox();
-            this.timer5ms = new System.Windows.Forms.Timer(this.components);
+            this.txtCoefLevel = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -470,14 +469,19 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Коэффициенты";
             // 
-            // label7
+            // txtCoefPressure
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(15, 49);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(51, 13);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Уровень";
+            this.txtCoefPressure.Location = new System.Drawing.Point(79, 19);
+            this.txtCoefPressure.Name = "txtCoefPressure";
+            this.txtCoefPressure.Size = new System.Drawing.Size(100, 20);
+            this.txtCoefPressure.TabIndex = 0;
+            // 
+            // txtCoefLevel
+            // 
+            this.txtCoefLevel.Location = new System.Drawing.Point(79, 46);
+            this.txtCoefLevel.Name = "txtCoefLevel";
+            this.txtCoefLevel.Size = new System.Drawing.Size(100, 20);
+            this.txtCoefLevel.TabIndex = 1;
             // 
             // label6
             // 
@@ -488,25 +492,14 @@
             this.label6.TabIndex = 2;
             this.label6.Text = "Давление";
             // 
-            // txtCoefLevel
+            // label7
             // 
-            this.txtCoefLevel.Location = new System.Drawing.Point(79, 46);
-            this.txtCoefLevel.Name = "txtCoefLevel";
-            this.txtCoefLevel.Size = new System.Drawing.Size(100, 20);
-            this.txtCoefLevel.TabIndex = 1;
-            // 
-            // txtCoefPressure
-            // 
-            this.txtCoefPressure.Location = new System.Drawing.Point(79, 19);
-            this.txtCoefPressure.Name = "txtCoefPressure";
-            this.txtCoefPressure.Size = new System.Drawing.Size(100, 20);
-            this.txtCoefPressure.TabIndex = 0;
-            // 
-            // timer5ms
-            // 
-            this.timer5ms.Enabled = true;
-            this.timer5ms.Interval = 5;
-            this.timer5ms.Tick += new System.EventHandler(this.timer5ms_Tick);
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(15, 49);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(51, 13);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Уровень";
             // 
             // ConfigForm
             // 
@@ -590,7 +583,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txtCoefLevel;
         private System.Windows.Forms.TextBox txtCoefPressure;
-        private System.Windows.Forms.Timer timer5ms;
     }
 }
 

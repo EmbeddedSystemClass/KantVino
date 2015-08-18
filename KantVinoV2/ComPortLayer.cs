@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace KantVinoV2 //end 13_07_2015
 {
-    class ComPortLayer
+    public class ComPortLayer
     {
         private Timer _readDataTimer = new Timer();
         private ComPort _comPort = new ComPort();
@@ -28,6 +28,22 @@ namespace KantVinoV2 //end 13_07_2015
         public void PortClose()
         {
             _comPort.Close();
+            
+        }
+
+        public string[] BaudRates()
+        {
+            return _comPort.BaudRates();
+        }
+
+        public string[] PortNames()
+        {
+            return _comPort.PortNames();
+        }
+
+        public bool IsOpen()
+        {
+            return _comPort.IsOpen();
         }
 
         public ComPortLayer()

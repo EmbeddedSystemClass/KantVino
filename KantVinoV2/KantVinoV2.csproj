@@ -58,6 +58,12 @@
       <DependentUpon>ConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigLayer.cs" />
+    <Compile Include="CustomTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CustomTextBox.Designer.cs">
+      <DependentUpon>CustomTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="DataBaseLayer.cs" />
     <Compile Include="InterfaceLayer.cs" />
     <Compile Include="ItemControl.cs">
