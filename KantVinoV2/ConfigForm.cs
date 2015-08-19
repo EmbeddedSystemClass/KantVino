@@ -18,6 +18,7 @@ namespace KantVinoV2
         //public int ItemCount=20;
 
         public ComPortLayer _comPortLayer = null;
+        public DataBaseLayer _dataBaseLayer = null;
 
         public ConfigForm()
         {
@@ -87,7 +88,15 @@ namespace KantVinoV2
 
         private void btnStartBackup_Click(object sender, EventArgs e)
         {
+            _dataBaseLayer.SaveBackup();
+            _dataBaseLayer.BackupProgress += backupProgress;
+        }
 
+        private void backupProgress(int remaining, int pagecount)
+        {
+            prgBackup.Minimum = 0;
+            prgBackup.Maximum = pagecount;
+            prgBackup.Value = remaining;
         }
 
         private void txtTimeSaveCache_TextEndEdit(object sender, EventArgs e)

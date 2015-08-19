@@ -193,6 +193,7 @@ namespace KantVinoV2
         {
             ConfigForm configForm = new ConfigForm();
             configForm._comPortLayer = _comPortLayer;
+            configForm._dataBaseLayer = _dataBaseLayer;
             if (configForm.ShowDialog() == DialogResult.OK)
             {
                 

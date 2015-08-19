@@ -89,6 +89,7 @@
     <Compile Include="SingleGraph.cs" />
     <Compile Include="SQLite.cs" />
     <Compile Include="SQLiteAsync.cs" />
+    <Compile Include="SQLiteBackup.cs" />
     <Compile Include="UnitData.cs" />
     <EmbeddedResource Include="ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>

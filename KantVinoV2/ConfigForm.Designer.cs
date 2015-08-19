@@ -41,7 +41,9 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.txtTimeSaveBackup = new KantVinoV2.CustomTextBox();
             this.label13 = new System.Windows.Forms.Label();
+            this.txtTimeSaveCache = new KantVinoV2.CustomTextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.lblDataBaseStatus = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -70,8 +72,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.txtTimeSaveCache = new KantVinoV2.CustomTextBox();
-            this.txtTimeSaveBackup = new KantVinoV2.CustomTextBox();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -223,6 +224,14 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "БД";
             // 
+            // txtTimeSaveBackup
+            // 
+            this.txtTimeSaveBackup.Location = new System.Drawing.Point(144, 97);
+            this.txtTimeSaveBackup.Name = "txtTimeSaveBackup";
+            this.txtTimeSaveBackup.Size = new System.Drawing.Size(83, 20);
+            this.txtTimeSaveBackup.TabIndex = 16;
+            this.txtTimeSaveBackup.TextChanged += new System.EventHandler(this.txtTimeSaveBackup_TextChanged);
+            // 
             // label13
             // 
             this.label13.AutoSize = true;
@@ -231,6 +240,14 @@
             this.label13.Size = new System.Drawing.Size(28, 13);
             this.label13.TabIndex = 16;
             this.label13.Text = "сек.";
+            // 
+            // txtTimeSaveCache
+            // 
+            this.txtTimeSaveCache.Location = new System.Drawing.Point(144, 45);
+            this.txtTimeSaveCache.Name = "txtTimeSaveCache";
+            this.txtTimeSaveCache.Size = new System.Drawing.Size(83, 20);
+            this.txtTimeSaveCache.TabIndex = 15;
+            this.txtTimeSaveCache.TextEndEdit += new System.EventHandler(this.txtTimeSaveCache_TextEndEdit);
             // 
             // label12
             // 
@@ -487,21 +504,9 @@
             this.label7.TabIndex = 0;
             this.label7.Text = "Время возобновления после паузы";
             // 
-            // txtTimeSaveCache
+            // folderBrowserDialog1
             // 
-            this.txtTimeSaveCache.Location = new System.Drawing.Point(144, 45);
-            this.txtTimeSaveCache.Name = "txtTimeSaveCache";
-            this.txtTimeSaveCache.Size = new System.Drawing.Size(83, 20);
-            this.txtTimeSaveCache.TabIndex = 15;
-            this.txtTimeSaveCache.TextEndEdit += new System.EventHandler(this.txtTimeSaveCache_TextEndEdit);
-            // 
-            // txtTimeSaveBackup
-            // 
-            this.txtTimeSaveBackup.Location = new System.Drawing.Point(144, 97);
-            this.txtTimeSaveBackup.Name = "txtTimeSaveBackup";
-            this.txtTimeSaveBackup.Size = new System.Drawing.Size(83, 20);
-            this.txtTimeSaveBackup.TabIndex = 16;
-            this.txtTimeSaveBackup.TextChanged += new System.EventHandler(this.txtTimeSaveBackup_TextChanged);
+            this.folderBrowserDialog1.RootFolder = System.Environment.SpecialFolder.MyComputer;
             // 
             // ConfigForm
             // 
@@ -574,5 +579,6 @@
         private System.Windows.Forms.Label label12;
         private CustomTextBox txtTimeSaveBackup;
         private CustomTextBox txtTimeSaveCache;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }

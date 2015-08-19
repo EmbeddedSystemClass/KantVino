@@ -52,8 +52,8 @@ namespace KantVinoV2
         //Параметры бд, требуется перезагрузка настроек Open();
         public static int timeSaveCache = 10; //*
         public static int timeSaveBacup = 1000000;
-        public static string dataBasePath = ""; //*
-        public static string backupPath = "";
+        public static string dataBasePath = "KantVino.db"; //*
+        public static string backupPath = "KantVinoBackup.db";
 
         //Параметры порта, требуется перезагрузка настроек PortOpen()
         public static string port = "COM4"; //*

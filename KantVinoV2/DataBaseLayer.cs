@@ -8,16 +8,22 @@ using SQLite;
 
 namespace KantVinoV2 //end 14_07_2015
 {
-    class DataBaseLayer  
+    public class DataBaseLayer  
     {
         private SQLiteConnection _db = null;
         private List<UnitData>[] _dataCache = new List<UnitData>[2];
         private int _swapIndex = 0;
         private Timer _saveCacheTimer = new Timer();
+        private Timer _saveBackupTimer = new Timer();
 
         private void SaveCacheTimer_Tick(object sender, EventArgs e)
         {
             SaveCache();
+        }
+
+        private void SaveBackupTimer_Tick(object sender, EventArgs e)
+        {
+            SaveBackup();
         }
 
         public void AddDataToCache(IEnumerable<UnitData> datas)
@@ -94,11 +100,12 @@ namespace KantVinoV2 //end 14_07_2015
             if (_db != null)
             {
                 _saveCacheTimer.Enabled = false;
+                _saveBackupTimer.Enabled = false;
                 while(_db.IsInTransaction);
                 _db.Dispose();
             }
 
-            _db = new SQLiteConnection("KantVino.db", true);
+            _db = new SQLiteConnection(ConfigLayer.dataBasePath, true);
             _db.CreateTable<UnitData>();
 
             _dataCache[0] = new List<UnitData>();
@@ -109,6 +116,12 @@ namespace KantVinoV2 //end 14_07_2015
             _saveCacheTimer.Interval = ConfigLayer.timeSaveCache * 1000;
             _saveCacheTimer.Enabled = true;
             _saveCacheTimer.Tick += SaveCacheTimer_Tick;
+
+            _saveBackupTimer.Interval = ConfigLayer.timeSaveBacup * 1000;
+            _saveBackupTimer.Enabled = true;
+            _saveBackupTimer.Tick += SaveBackupTimer_Tick;
+
+            _db.BackupProgress += BackupProgress;
         }
 
         public void Close()
@@ -121,5 +134,13 @@ namespace KantVinoV2 //end 14_07_2015
                 _db.Dispose();
             }
         }
+
+        public void SaveBackup()
+        {
+            _db.BackupDataBase(ConfigLayer.backupPath);
+        }
+
+        public event SQLiteConnection.BackupProgressEventHandler BackupProgress;
+
     }
 }
